@@ -44,19 +44,19 @@ public:
     //events
 	void OnOKUI(wxUpdateUIEvent & event);
 	void OnOk(wxCommandEvent & event);
+    void OnParamChanged(wxGISGPParamEvent& event);
     //getter
-    //CPLString GetOutputPath() const;
     //wxGISFeatureDataset *GetInputDataset() const;
-    //wxGxObjectFilter* GetFilter() const;
 protected:
-	//wxComboBox* m_selfield;
+    void SerializeFramePos(bool bSave);
+
+protected:
 	wxStdDialogButtonSizer* m_sdbSizer;
 	wxButton* m_sdbSizerCancel;
     wxVector<wxGISDTBase*> m_paControls;
     wxGISGPParameterArray m_Parameters;
     CPLString m_soOutPath;
     //wxGISFeatureDataset *m_pDS;
-    //wxGxObjectFilter* m_pFilter;
 private:
 	DECLARE_EVENT_TABLE()	
 };

@@ -31,6 +31,7 @@
 BEGIN_EVENT_TABLE(wxGISBarnaulDataLoaderDlg, wxDialog)
 	EVT_UPDATE_UI(wxID_OK, wxGISBarnaulDataLoaderDlg::OnOKUI)
 	EVT_BUTTON( wxID_OK, wxGISBarnaulDataLoaderDlg::OnOk )
+	EVT_GPPARAM_CHANGED( wxGISBarnaulDataLoaderDlg::OnParamChanged )
 END_EVENT_TABLE()
 
 wxGISBarnaulDataLoaderDlg::wxGISBarnaulDataLoaderDlg( wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style ) : wxDialog( parent, id, title, pos, size, style )
@@ -49,10 +50,11 @@ wxGISBarnaulDataLoaderDlg::wxGISBarnaulDataLoaderDlg( wxWindow* parent, wxWindow
     pParamSrcFClass->SetDirection(enumGISGPParameterDirectionInput);
 
     wxGISGPGxObjectDomain* pDomain1 = new wxGISGPGxObjectDomain();
-    AddAllVectorFilters(pDomain1);
+    AddAllVectorFileFilters(pDomain1);
     pParamSrcFClass->SetDomain(pDomain1);
 
     m_Parameters.Add(pParamSrcFClass);
+    pParamSrcFClass->Advise(this);
     
     // select input csv or xls
     wxGISGPParameter *pParamSrcTable = new wxGISGPParameter(wxT("src_table"), _("Set input table"), enumGISGPParameterTypeRequired, enumGISGPParamDTPath);
@@ -64,27 +66,31 @@ wxGISBarnaulDataLoaderDlg::wxGISBarnaulDataLoaderDlg( wxWindow* parent, wxWindow
     pParamSrcTable->SetDomain(pDomain2);
 
     m_Parameters.Add(pParamSrcTable);
+    pParamSrcTable->Advise(this);
     
     // select filed from feature class to join
     wxGISGPParameter *pParamSrcFClassJoinField = new wxGISGPParameter(wxT("src_fclass_jf"), _("Set input feature class field to join"), enumGISGPParameterTypeRequired, enumGISGPParamDTFieldAnyChoice);
     pParamSrcFClassJoinField->SetDirection(enumGISGPParameterDirectionInput);
+    pParamSrcFClassJoinField->AddDependency(wxT("src_fclass"));
     
     m_Parameters.Add(pParamSrcFClassJoinField);
+    pParamSrcFClassJoinField->Advise(this);
         
     // select filed from csv or xls to join
     wxGISGPParameter *pParamSrcTableJoinField = new wxGISGPParameter(wxT("src_table_jf"), _("Set input table field to join"), enumGISGPParameterTypeRequired, enumGISGPParamDTFieldAnyChoice);
     pParamSrcTableJoinField->SetDirection(enumGISGPParameterDirectionInput);
+    pParamSrcTableJoinField->AddDependency(wxT("src_table"));
     
     m_Parameters.Add(pParamSrcTableJoinField);
+    pParamSrcTableJoinField->Advise(this);
     
     // select output name
     wxGISGPParameter *pOutputName = new wxGISGPParameter(wxT("dst_name"), _("Set outpul layer name"), enumGISGPParameterTypeRequired, enumGISGPParamDTFieldAnyChoice);
     pOutputName->SetDirection(enumGISGPParameterDirectionOutput);
     
     m_Parameters.Add(pOutputName);
+    pOutputName->Advise(this);
     
-    //TODO: Coordinates or BBox
-
     //create gpcontrols
     wxGISDTPath* pInPath1 = new wxGISDTPath(m_Parameters, 0, this);
     bSizer->Add( pInPath1, 0, wxEXPAND, 5 );
@@ -101,7 +107,8 @@ wxGISBarnaulDataLoaderDlg::wxGISBarnaulDataLoaderDlg( wxWindow* parent, wxWindow
     wxGISDTFieldChoice* pInFldChoice2 = new wxGISDTFieldChoice(m_Parameters, 3, this);
     bSizer->Add( pInFldChoice2, 0, wxEXPAND, 5 );
     m_paControls.push_back(pInFldChoice2);
-    
+ 
+   
     wxGISDTText* pInText = new wxGISDTText(m_Parameters, 4, this);    
     bSizer->Add( pInText, 0, wxEXPAND, 5 );
     m_paControls.push_back(pInText);
@@ -124,12 +131,15 @@ wxGISBarnaulDataLoaderDlg::wxGISBarnaulDataLoaderDlg( wxWindow* parent, wxWindow
 	
 	this->Centre( wxBOTH );
 
-    //m_pFilter = NULL;
     //m_pDS = NULL;
+    
+    SerializeFramePos(false);
 }
 
 wxGISBarnaulDataLoaderDlg::~wxGISBarnaulDataLoaderDlg()
 {
+    SerializeFramePos(true);
+    
     for(size_t i = 0; i < m_paControls.size(); ++i)
     {
         if(m_paControls[i])
@@ -147,21 +157,27 @@ void wxGISBarnaulDataLoaderDlg::OnOKUI(wxUpdateUIEvent & event)
     event.Enable(IsValid());
 }
 
+void wxGISBarnaulDataLoaderDlg::OnParamChanged(wxGISGPParamEvent& event)
+{
+    if(event.GetId() == 0)
+    {
+        if(!m_Parameters[4]->GetAltered())
+        {
+            wxString sPath = event.GetParamValue();
+            wxFileName Name(sPath);
+            m_Parameters[4]->SetValue(wxVariant(Name.GetName(), wxT("dst_name")));
+            m_Parameters[4]->SetAltered(true);
+        }       
+    }
+    
+    for(size_t i = 0; i < m_paControls.size(); ++i)
+        if(m_paControls[i])
+            m_paControls[i]->OnParamChanged(event);
+}
+
+
 bool wxGISBarnaulDataLoaderDlg::IsValid(void)
 {
-    /*if(!m_Parameters[1]->GetAltered())
-    {
-        if(m_Parameters[0]->IsValid())
-        {
-            //generate temp name
-            wxString sPath = m_Parameters[0]->GetValue();
-            wxFileName Name(sPath);
-            Name.SetName(Name.GetName() + wxT("_calibrate"));
-            m_Parameters[1]->SetValue(wxVariant(Name.GetFullPath(), wxT("dst_csv")));
-            m_Parameters[1]->SetAltered(true);//??
-        }
-    }*/
-
     for(size_t i = 0; i < m_Parameters.GetCount(); ++i)
         if(!m_Parameters[i]->IsValid())
             return false;
@@ -172,67 +188,92 @@ bool wxGISBarnaulDataLoaderDlg::IsValid(void)
 
 void wxGISBarnaulDataLoaderDlg::OnOk(wxCommandEvent & event)
 {
-    wxString sOutputPath = m_Parameters[1]->GetValue().GetString();
-    wxString sInputPath = m_Parameters[0]->GetValue().GetString();
+    wxString sInputFCPath = m_Parameters[0]->GetValue().GetString();
+    wxString sInputTabPath = m_Parameters[1]->GetValue().GetString();
+    wxString sInputFCPathFieldName = m_Parameters[2]->GetValue().GetString();
+    wxString sInputTabPathFieldName = m_Parameters[3]->GetValue().GetString();
+    wxString sOutputName = m_Parameters[4]->GetValue().GetString();
     wxGxCatalogBase* pCat = GetGxCatalog();
     if(pCat)
     {
-        /*wxGxDataset* pGxDSet = dynamic_cast<wxGxDataset*>(pCat->FindGxObject(sInputPath));
+        wxGxDataset* pGxDSet = dynamic_cast<wxGxDataset*>(pCat->FindGxObject(sInputFCPath));
         if(pGxDSet)
-            m_pDS = wxDynamicCast(pGxDSet->GetDataset(false), wxGISFeatureDataset);
-
-
-    	//check overwrite & do it!
-        wxGxObject* pGxObj = pCat->FindGxObject(sOutputPath);
-	    if(pGxObj && !OverWriteGxObject(pGxObj))
         {
-            wxMessageBox(_("Overwrite failed"), _("Error"), wxOK | wxICON_ERROR);
-		    return;
+            wxGISFeatureDataset *pFeatureDataset = wxDynamicCast(pGxDSet->GetDataset(false), wxGISFeatureDataset);
+            wxGISSpatialReference SpaRef = pFeatureDataset->GetSpatialReference();
+            if(!SpaRef.IsOk())
+            {
+                wxGISSpatialReference BarnaulSpaRef(wxT("PROJCS[\"unnamed\",GEOGCS[\"Krassovsky, 1942\",DATUM[\"unknown\",SPHEROID[\"krass\",6378245,298.3],TOWGS84[23.92,-141.27,-80.9,-0,0.35,0.82,-0.12]],PRIMEM[\"Greenwich\",0],UNIT[\"degree\",0.0174532925199433]],PROJECTION[\"Hotine_Oblique_Mercator_Azimuth_Center\"],PARAMETER[\"latitude_of_center\",53.3090998192],PARAMETER[\"longitude_of_center\",82.466678914],PARAMETER[\"azimuth\",-1.2302179328],PARAMETER[\"rectified_grid_angle\",0],PARAMETER[\"scale_factor\",0.9999265173],PARAMETER[\"false_easting\",-77391.44014],PARAMETER[\"false_northing\",10469.46443],UNIT[\"Meter\",1]]"));
+                //pFeatureDataset->
+            }
         }
 
-	    wxGxObject* pGxDstObject = GetParentGxObjectFromPath(sOutputPath);
-        if(!pGxDstObject)
-        {
-            wxMessageBox(_("No path exist"), _("Error"), wxOK | wxICON_ERROR);
-		    return;
-        }
-
-        wxFileName sDstFileName(sOutputPath);
-        wxGISGPGxObjectDomain* pDomain = dynamic_cast<wxGISGPGxObjectDomain*>(m_Parameters[1]->GetDomain());
-	    m_pFilter = pDomain->GetFilter(m_Parameters[1]->GetSelDomainValue());
-        if(m_pFilter && !sDstFileName.HasExt())
-        {
-            m_soOutPath = CPLFormFilename(pGxDstObject->GetPath(), sDstFileName.GetName().mb_str(wxConvUTF8), m_pFilter->GetExt());
-        }
-        else
-        {
-            m_soOutPath = CPLFormFilename(pGxDstObject->GetPath(), sDstFileName.GetFullName().mb_str(wxConvUTF8), "");
-        }*/
+    	// create temp shape file ready to upload to the NGW
     }
 
 
     if ( IsModal() )
+    {
         EndModal(wxID_OK);
+    }
     else
     {
         SetReturnCode(wxID_OK);
         this->Show(false);
     }
 }
-/*
-CPLString wxGISBarnaulDataLoaderDlg::GetOutputPath() const
+
+void wxGISBarnaulDataLoaderDlg::SerializeFramePos(bool bSave)
 {
-    return m_soOutPath;
+    wxGISAppConfig oConfig = GetConfig();
+    if (!oConfig.IsOk())
+        return;
+		
+	wxString sAppName = GetApplication()->GetAppName();	
+	int x, y, w, h;
+    GetClientSize(&w, &h);
+    GetPosition(&x, &y);
+            
+    if (bSave)
+    {
+        if (IsMaximized())
+            oConfig.Write(enumGISHKCU, sAppName + wxString(wxT("/barnaul_dataloader/frame/maxi")), true);
+        else
+        {
+            oConfig.Write(enumGISHKCU, sAppName + wxString(wxT("/barnaul_dataloader/frame/maxi")), false);
+            oConfig.Write(enumGISHKCU, sAppName + wxString(wxT("/barnaul_dataloader/frame/width")), w);
+            oConfig.Write(enumGISHKCU, sAppName + wxString(wxT("/barnaul_dataloader/frame/height")), h);
+            oConfig.Write(enumGISHKCU, sAppName + wxString(wxT("/barnaul_dataloader/frame/xpos")), x);
+            oConfig.Write(enumGISHKCU, sAppName + wxString(wxT("/barnaul_dataloader/frame/ypos")), y);
+        }
+    }
+    else
+    {
+        //load
+        bool bMaxi = oConfig.ReadBool(enumGISHKCU, sAppName + wxString(wxT("/barnaul_dataloader/frame/maxi")), false);
+        if (!bMaxi)
+        {
+            int x = oConfig.ReadInt(enumGISHKCU, sAppName + wxString(wxT("/barnaul_dataloader/frame/xpos")), x);
+            int y = oConfig.ReadInt(enumGISHKCU, sAppName + wxString(wxT("/barnaul_dataloader/frame/ypos")), y);
+            int w = oConfig.ReadInt(enumGISHKCU, sAppName + wxString(wxT("/barnaul_dataloader/frame/width")), w);
+            int h = oConfig.ReadInt(enumGISHKCU, sAppName + wxString(wxT("/barnaul_dataloader/frame/height")), h);
+            Move(x, y);
+            SetClientSize(w, h);
+        }
+        else
+        {
+            Maximize();
+        }
+    }
 }
+
+
+/*
 
 wxGISFeatureDataset *wxGISBarnaulDataLoaderDlg::GetInputDataset() const
 {
     return m_pDS;
 }
 
-wxGxObjectFilter* wxGISBarnaulDataLoaderDlg::GetFilter() const
-{
-    return m_pFilter;
-}
 */
 
