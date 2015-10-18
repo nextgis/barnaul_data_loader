@@ -45,5 +45,6 @@ public:
 	virtual unsigned char GetCount(void);
 private:
 	wxGxApplication* m_pApp;
+	wxIcon m_IconLoadTask;
 };
 

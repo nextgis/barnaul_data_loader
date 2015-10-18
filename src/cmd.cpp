@@ -27,6 +27,9 @@
 //#include "wxgis/core/config.h"
 //#include "wxgis/net/curl.h"
 //#include "wxgis/catalogui/remoteconndlgs.h"
+#include "dlg.h"
+
+#include "../art/strat_16.xpm"
 
 //-----------------------------------------------------------------------------
 // wxGISBarnaulDataloaderCmd
@@ -45,7 +48,15 @@ wxGISBarnaulDataloaderCmd::~wxGISBarnaulDataloaderCmd(void)
 
 wxIcon wxGISBarnaulDataloaderCmd::GetBitmap(void)
 {
-    return wxNullIcon;
+    switch(m_subtype)
+	{
+	    case 0:
+		    if(!m_IconLoadTask.IsOk())
+                m_IconLoadTask = wxIcon(strat_16_xpm);
+		    return m_IconLoadTask;
+		default:    
+            return wxNullIcon;
+    }
 }
 
 wxString wxGISBarnaulDataloaderCmd::GetCaption(void)
@@ -128,6 +139,9 @@ void wxGISBarnaulDataloaderCmd::OnClick(void)
 	{
 		case 0:	
   			{
+  			    wxGISBarnaulDataLoaderDlg dlg(dynamic_cast<wxWindow*>(m_pApp));
+                if(dlg.ShowModal() == wxID_OK)
+                {
                 wxGxObject* pGxObject = pCat->GetRegisterObject(pSel->GetLastSelectedObjectId());
                 /*wxGxSatDBMonTasksUI *pTasks = wxDynamicCast(pGxObject, wxGxSatDBMonTasksUI);
 				if(pTasks)
@@ -135,6 +149,7 @@ void wxGISBarnaulDataloaderCmd::OnClick(void)
 					wxWindow* pParentWnd = dynamic_cast<wxWindow*>(m_pApp);
 					pTasks->CreateTask(pParentWnd);
 				}*/
+				}
 			}
 			break;		
 		

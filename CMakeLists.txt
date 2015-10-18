@@ -93,10 +93,12 @@ set (HHEADERS
     ./include/cmd.h
     ./include/exports.h
     ./include/version.h
+    ./include/dlg.h
 )
 
 set(CSOURCES
     ./src/cmd.cpp
+    ./src/dlg.cpp
 )
 
 add_library(${LIB_NAME} SHARED ${HHEADERS} ${CSOURCES})
