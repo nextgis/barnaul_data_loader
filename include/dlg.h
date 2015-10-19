@@ -21,7 +21,7 @@
 #include "exports.h"
 #include "wxgis/geoprocessingui/gpcontrols.h"
 #include "wxgis/geoprocessing/gpparam.h"
-#include "wxgis/datasource/featuredataset.h"
+#include "wxgis/catalogui/gxngwconnui.h"
 
 #include <wx/string.h>
 #include <wx/stattext.h>
@@ -38,15 +38,13 @@
 class WXDLLIMPEXP_GIS_BDL wxGISBarnaulDataLoaderDlg : public wxDialog 
 {
 public:
-	wxGISBarnaulDataLoaderDlg( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = _("Import spatial data"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize, long style = wxCAPTION|wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER|wxCLIP_CHILDREN );
+	wxGISBarnaulDataLoaderDlg( wxGxNGWResourceGroupUI *pResourceGroup, wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = _("Import spatial data"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize, long style = wxCAPTION|wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER|wxCLIP_CHILDREN );
 	~wxGISBarnaulDataLoaderDlg();
     bool IsValid(void);
     //events
 	void OnOKUI(wxUpdateUIEvent & event);
 	void OnOk(wxCommandEvent & event);
     void OnParamChanged(wxGISGPParamEvent& event);
-    //getter
-    //wxGISFeatureDataset *GetInputDataset() const;
 protected:
     void SerializeFramePos(bool bSave);
 
@@ -56,7 +54,7 @@ protected:
     wxVector<wxGISDTBase*> m_paControls;
     wxGISGPParameterArray m_Parameters;
     CPLString m_soOutPath;
-    //wxGISFeatureDataset *m_pDS;
+    wxGxNGWResourceGroupUI *m_pResourceGroup;
 private:
 	DECLARE_EVENT_TABLE()	
 };

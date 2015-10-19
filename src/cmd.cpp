@@ -21,12 +21,8 @@
 #include "cmd.h"
 #include "wxgis/catalogui/gxselection.h"
 #include "wxgis/catalog/gxcatalog.h"
-//#include "wxgis/catalog/gxdataset.h"
 #include "wxgis/catalog/gxngwconn.h"
-//#include "wxgis/framework/progressdlg.h"
-//#include "wxgis/core/config.h"
-//#include "wxgis/net/curl.h"
-//#include "wxgis/catalogui/remoteconndlgs.h"
+
 #include "dlg.h"
 
 #include "../art/strat_16.xpm"
@@ -139,17 +135,13 @@ void wxGISBarnaulDataloaderCmd::OnClick(void)
 	{
 		case 0:	
   			{
-  			    wxGISBarnaulDataLoaderDlg dlg(dynamic_cast<wxWindow*>(m_pApp));
-                if(dlg.ShowModal() == wxID_OK)
-                {
-                wxGxObject* pGxObject = pCat->GetRegisterObject(pSel->GetLastSelectedObjectId());
-                /*wxGxSatDBMonTasksUI *pTasks = wxDynamicCast(pGxObject, wxGxSatDBMonTasksUI);
-				if(pTasks)
-				{
-					wxWindow* pParentWnd = dynamic_cast<wxWindow*>(m_pApp);
-					pTasks->CreateTask(pParentWnd);
-				}*/
-				}
+  			    wxGxObject* pGxObject = pCat->GetRegisterObject(pSel->GetLastSelectedObjectId());
+  			    wxGxNGWResourceGroupUI* pResourceGroup = wxDynamicCast(pGxObject, wxGxNGWResourceGroupUI);
+  			    if(NULL != pResourceGroup)
+  			    {
+      			    wxGISBarnaulDataLoaderDlg dlg(pResourceGroup, dynamic_cast<wxWindow*>(m_pApp));
+                    dlg.ShowModal();
+			    }
 			}
 			break;		
 		
