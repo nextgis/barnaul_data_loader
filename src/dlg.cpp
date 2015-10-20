@@ -27,6 +27,7 @@
 #include "wxgis/catalogui/processing.h"
 
 #include <wx/statline.h>
+#include <set>
 
 #include "../art/strat_16.xpm"
 
@@ -92,6 +93,17 @@ wxGISBarnaulDataLoaderDlg::wxGISBarnaulDataLoaderDlg( wxGxNGWResourceGroupUI *pR
     m_Parameters.Add(pParamSrcTableJoinField);
     pParamSrcTableJoinField->Advise(this);
     
+    // select geometry type
+    wxGISGPParameter *pParamOutGeomType = new wxGISGPParameter(wxT("src_fclass_gt"), _("Select output geometry type"), enumGISGPParameterTypeRequired, enumGISGPParamDTFieldIntegerChoice);
+    pParamOutGeomType->SetDirection(enumGISGPParameterDirectionInput);
+    pParamOutGeomType->AddDependency(wxT("src_fclass"));
+    
+    wxGISGPValueDomain* pDomain3 = new wxGISGPValueDomain();
+    pParamOutGeomType->SetDomain(pDomain3);
+    
+    m_Parameters.Add(pParamOutGeomType);
+    pParamOutGeomType->Advise(this);
+    
     // select output name
     wxGISGPParameter *pOutputName = new wxGISGPParameter(wxT("dst_name"), _("Set outpul layer name"), enumGISGPParameterTypeRequired, enumGISGPParamDTFieldAnyChoice);
     pOutputName->SetDirection(enumGISGPParameterDirectionOutput);
@@ -115,9 +127,13 @@ wxGISBarnaulDataLoaderDlg::wxGISBarnaulDataLoaderDlg( wxGxNGWResourceGroupUI *pR
     wxGISDTFieldChoice* pInFldChoice2 = new wxGISDTFieldChoice(m_Parameters, 3, this);
     bSizer->Add( pInFldChoice2, 0, wxEXPAND, 5 );
     m_paControls.push_back(pInFldChoice2);
+    
+    wxGISDTChoice *pGeomTypeChoice = new wxGISDTChoice(m_Parameters, 4, this);    
+    bSizer->Add( pGeomTypeChoice, 0, wxEXPAND, 5 );
+    m_paControls.push_back(pGeomTypeChoice);
  
    
-    wxGISDTText* pInText = new wxGISDTText(m_Parameters, 4, this);    
+    wxGISDTText* pInText = new wxGISDTText(m_Parameters, 5, this);    
     bSizer->Add( pInText, 0, wxEXPAND, 5 );
     m_paControls.push_back(pInText);
     
@@ -169,12 +185,66 @@ void wxGISBarnaulDataLoaderDlg::OnParamChanged(wxGISGPParamEvent& event)
 {
     if(event.GetId() == 0)
     {
-        if(!m_Parameters[4]->GetAltered())
+        if(!m_Parameters[5]->GetAltered())
         {
             wxString sPath = event.GetParamValue();
             wxFileName Name(sPath);
-            m_Parameters[4]->SetValue(wxVariant(Name.GetName(), wxT("dst_name")));
-            m_Parameters[4]->SetAltered(true);
+            m_Parameters[5]->SetValue(wxVariant(Name.GetName(), wxT("dst_name")));
+        }    
+        
+        //if(!m_Parameters[4]->GetAltered()) not check altered
+        {
+            wxString sPath = event.GetParamValue();
+            wxGxCatalogBase* pCat = GetGxCatalog();
+            wxGxDataset* pGxDSet = dynamic_cast<wxGxDataset*>(pCat->FindGxObject(sPath));
+            if(pGxDSet)
+            {
+                wxGISFeatureDataset *pFeatureDataset = wxDynamicCast(pGxDSet->GetDataset(true), wxGISFeatureDataset);
+                if(pFeatureDataset)
+                {                  
+                    if (!pFeatureDataset->IsOpened())
+		            {
+                        if (!pFeatureDataset->Open(0, false, true, true))
+                        {
+                            wsDELETE(pFeatureDataset);
+                            return;
+                        }
+                    }
+                    
+                    // for cached datasources 
+                    if (!pFeatureDataset->IsCached())
+                    {
+                        pFeatureDataset->Cache();
+                    }
+            
+                    wxGISFeature Feature;
+                    std::set<OGRwkbGeometryType> geomTypes;
+                    while ((Feature = pFeatureDataset->Next()).IsOk())
+		            {
+		                wxGISGeometry geom = Feature.GetGeometry();
+		                if(geom.IsOk())
+		                {
+		                    OGRwkbGeometryType eGeomType = geom.GetType();
+		                    if(eGeomType < 1 && eGeomType > 6)
+		                        continue;
+		                        
+		                    if(eGeomType > 3) // show not multi
+		                        eGeomType = (OGRwkbGeometryType)(eGeomType - 3);
+		                    geomTypes.insert(eGeomType);
+		                }
+		                
+                    }    
+                    
+                    wxGISGPValueDomain* pDomain = m_Parameters[4]->GetDomain();
+                    pDomain->Clear();                    
+                       
+                    for (std::set<OGRwkbGeometryType>::const_iterator it = geomTypes.begin(); it != geomTypes.end(); ++it)
+                    {
+                        OGRwkbGeometryType eGeomType = *it;
+                        pDomain->AddValue((long)eGeomType, OGRGeometryTypeToName(eGeomType));   
+                    }            
+                }
+            }
         }       
     }
     
@@ -200,7 +270,8 @@ void wxGISBarnaulDataLoaderDlg::OnOk(wxCommandEvent & event)
     wxString sInputTabPath = m_Parameters[1]->GetValue().GetString();
     wxString sInputFCPathFieldName = m_Parameters[2]->GetValue().GetString();
     wxString sInputTabPathFieldName = m_Parameters[3]->GetValue().GetString();
-    wxString sOutputName = m_Parameters[4]->GetValue().GetString();
+    OGRwkbGeometryType eGeomType = (OGRwkbGeometryType)m_Parameters[4]->GetValue().GetLong();
+    wxString sOutputName = m_Parameters[5]->GetValue().GetString();
     wxGxCatalogBase* pCat = GetGxCatalog();
     if(pCat)
     {
@@ -237,12 +308,7 @@ void wxGISBarnaulDataLoaderDlg::OnOk(wxCommandEvent & event)
             pFeatureDataset->Cache(&ProgressDlg);
         }
         
-        
-        while (pFeatureDataset->IsCaching())
-        {
-            pFeatureDataset->StopCaching();
-        }
-       
+               
         wxGISSpatialReference SpaRef;// = pFeatureDataset->GetSpatialReference();
         if(!SpaRef.IsOk())
         {            
@@ -280,11 +346,6 @@ void wxGISBarnaulDataLoaderDlg::OnOk(wxCommandEvent & event)
             pTable->Cache(&ProgressDlg);
         }
         
-        while (pTable->IsCaching())
-        {
-            pTable->StopCaching();
-        }
-        
     	// create temp memory dataset ready to upload to the NGW
     	
     	OGRCompatibleDriver* poMEMDrv = GetOGRCompatibleDriverByName("Memory");
@@ -294,7 +355,7 @@ void wxGISBarnaulDataLoaderDlg::OnOk(wxCommandEvent & event)
             return;
         }
         
-        OGRwkbGeometryType eGeomType = GetGeometryType(pFeatureDataset); 
+        //OGRwkbGeometryType eGeomType = GetGeometryType(pFeatureDataset); 
 
         OGRCompatibleDataSource* poOutDS = poMEMDrv->CreateOGRCompatibleDataSource("OutDS", NULL);
         OGRLayer* poOutLayer = poOutDS->CreateLayer("output", SpaRef, eGeomType, NULL);
@@ -372,6 +433,13 @@ void wxGISBarnaulDataLoaderDlg::OnOk(wxCommandEvent & event)
 			    continue;
 			}
 			OGRwkbGeometryType eFeatureGeomType = Geom.GetType();
+			
+			if(eFeatureGeomType != eGeomType && eFeatureGeomType + 3 != eGeomType)
+			{
+			    ProgressDlg.PutMessage(wxString::Format(_("Skip %ld feature"), Feature.GetFID()), wxNOT_FOUND, enumGISMessageWarning);
+			    continue;
+			}			    
+			
 			OGRGeometry *pNewGeom = NULL;
 			if (eFeatureGeomType != eGeomType)
             {
