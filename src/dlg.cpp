@@ -231,18 +231,16 @@ void wxGISBarnaulDataLoaderDlg::OnOk(wxCommandEvent & event)
             }
         }
         
-        /*while (pFeatureDataset->IsCaching())
+        // for cached datasources 
+        if (!pFeatureDataset->IsCached())
+        {
+            pFeatureDataset->Cache(&ProgressDlg);
+        }
+        
+        
+        while (pFeatureDataset->IsCaching())
         {
             pFeatureDataset->StopCaching();
-        }*/
-        wxSleep(10);
-        
-        wxGISFeature Feature1;
-		pFeatureDataset->Reset();
-		while ((Feature1 = pFeatureDataset->Next()).IsOk())
-		{
-		    wxLogError(wxT("1 : %ld"), Feature1.GetFID());
-		
         }
        
         wxGISSpatialReference SpaRef;// = pFeatureDataset->GetSpatialReference();
@@ -276,12 +274,16 @@ void wxGISBarnaulDataLoaderDlg::OnOk(wxCommandEvent & event)
             }
         } 
         
-        /*while (pTable->IsCaching())
+        // for cached datasources 
+        if (!pTable->IsCached())
+        {
+            pTable->Cache(&ProgressDlg);
+        }
+        
+        while (pTable->IsCaching())
         {
             pTable->StopCaching();
-        }*/
-        
-        wxSleep(10);
+        }
         
     	// create temp memory dataset ready to upload to the NGW
     	
@@ -416,6 +418,7 @@ void wxGISBarnaulDataLoaderDlg::OnOk(wxCommandEvent & event)
             
             // set style
             newFeature.SetField("OGR_STYLE", Feature.GetStyleString());
+            //wxLogError("GetStyleString %s", Feature.GetStyleString().c_str())
             
             // set fields from table if any exist
             wxString sFieldValue = Feature.GetFieldAsString(sInputFCPathFieldName);
@@ -428,7 +431,7 @@ void wxGISBarnaulDataLoaderDlg::OnOk(wxCommandEvent & event)
                 }
             }            
             
-            if( pGISFeatureDataset->StoreFeature( Feature ) != OGRERR_NONE )
+            if( pGISFeatureDataset->StoreFeature( newFeature ) != OGRERR_NONE )
             {
 		        const char* err = CPLGetLastErrorMsg();
                 wxString sErr(err, wxConvUTF8);
