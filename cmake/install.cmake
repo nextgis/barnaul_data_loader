@@ -34,7 +34,7 @@ set_target_properties(${LIB_NAME}
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}
     )
 
-#install lib and bin
+# install lib and bin
 
 install(TARGETS ${LIB_NAME}
         RUNTIME DESTINATION bin
@@ -42,5 +42,5 @@ install(TARGETS ${LIB_NAME}
         LIBRARY DESTINATION lib
     )
 
-# install headers
-install(FILES ${INSTALL_HEADERS} DESTINATION include/ngm)
+
+
