@@ -24,6 +24,7 @@
 #include "wxgis/catalog/gxdataset.h"
 #include "wxgis/datasource/featuredataset.h"
 #include "wxgis/datasource/table.h"
+#include "wxgis/catalogui/processing.h"
 
 #include <wx/statline.h>
 
@@ -58,6 +59,7 @@ wxGISBarnaulDataLoaderDlg::wxGISBarnaulDataLoaderDlg( wxGxNGWResourceGroupUI *pR
     wxGISGPGxObjectDomain* pDomain1 = new wxGISGPGxObjectDomain();
     AddAllVectorFileFilters(pDomain1);
     pParamSrcFClass->SetDomain(pDomain1);
+    pParamSrcFClass->SetSelDomainValue(2); //select mid/mif
 
     m_Parameters.Add(pParamSrcFClass);
     pParamSrcFClass->Advise(this);
@@ -202,6 +204,8 @@ void wxGISBarnaulDataLoaderDlg::OnOk(wxCommandEvent & event)
     wxGxCatalogBase* pCat = GetGxCatalog();
     if(pCat)
     {
+        wxGISProgressDlg ProgressDlg(_("Form join feature dataset"), _("Begin operation..."), 100, this);
+        
         wxGxDataset* pGxDSet = dynamic_cast<wxGxDataset*>(pCat->FindGxObject(sInputFCPath));
         if(!pGxDSet)
         {
@@ -210,17 +214,40 @@ void wxGISBarnaulDataLoaderDlg::OnOk(wxCommandEvent & event)
             return;
         }
         
-        wxGISFeatureDataset *pFeatureDataset = wxDynamicCast(pGxDSet->GetDataset(false), wxGISFeatureDataset);
+        wxGISFeatureDataset *pFeatureDataset = wxDynamicCast(pGxDSet->GetDataset(true, &ProgressDlg), wxGISFeatureDataset);
         if(!pFeatureDataset)
         {
             wxString sErr = wxString::Format(_("Failed to get feature dataset %s"), sInputFCPath.c_str());
             wxMessageBox(sErr, _("Error"), wxOK | wxICON_ERROR);
             return;
-        }   
+        }
         
-        wxGISSpatialReference SpaRef = pFeatureDataset->GetSpatialReference();
-        if(!SpaRef.IsOk())
+        if (!pFeatureDataset->IsOpened())
+		{
+            if (!pFeatureDataset->Open(0, false, true, true))
+            {
+                wsDELETE(pFeatureDataset);
+                return;
+            }
+        }
+        
+        /*while (pFeatureDataset->IsCaching())
         {
+            pFeatureDataset->StopCaching();
+        }*/
+        wxSleep(10);
+        
+        wxGISFeature Feature1;
+		pFeatureDataset->Reset();
+		while ((Feature1 = pFeatureDataset->Next()).IsOk())
+		{
+		    wxLogError(wxT("1 : %ld"), Feature1.GetFID());
+		
+        }
+       
+        wxGISSpatialReference SpaRef;// = pFeatureDataset->GetSpatialReference();
+        if(!SpaRef.IsOk())
+        {            
             SpaRef = wxGISSpatialReference(wxT("PROJCS[\"unnamed\",GEOGCS[\"Krassovsky, 1942\",DATUM[\"unknown\",SPHEROID[\"krass\",6378245,298.3],TOWGS84[23.92,-141.27,-80.9,-0,0.35,0.82,-0.12]],PRIMEM[\"Greenwich\",0],UNIT[\"degree\",0.0174532925199433]],PROJECTION[\"Hotine_Oblique_Mercator_Azimuth_Center\"],PARAMETER[\"latitude_of_center\",53.3090998192],PARAMETER[\"longitude_of_center\",82.466678914],PARAMETER[\"azimuth\",-1.2302179328],PARAMETER[\"rectified_grid_angle\",0],PARAMETER[\"scale_factor\",0.9999265173],PARAMETER[\"false_easting\",-77391.44014],PARAMETER[\"false_northing\",10469.46443],UNIT[\"Meter\",1]]"));
         }
         
@@ -232,13 +259,29 @@ void wxGISBarnaulDataLoaderDlg::OnOk(wxCommandEvent & event)
             return;
         }
         
-        wxGISTable *pTable = wxDynamicCast(pGxTable->GetDataset(false), wxGISTable);
+        wxGISTable *pTable = wxDynamicCast(pGxTable->GetDataset(true, &ProgressDlg), wxGISTable);
         if(!pTable)
         {
             wxString sErr = wxString::Format(_("Failed to get table %s"), sInputTabPath.c_str());
             wxMessageBox(sErr, _("Error"), wxOK | wxICON_ERROR);
             return;
-        }   
+        }  
+        
+        if (!pTable->IsOpened())
+		{
+            if (!pTable->Open(0, false, true, true))
+            {
+                wsDELETE(pTable);
+                return;
+            }
+        } 
+        
+        /*while (pTable->IsCaching())
+        {
+            pTable->StopCaching();
+        }*/
+        
+        wxSleep(10);
         
     	// create temp memory dataset ready to upload to the NGW
     	
@@ -248,9 +291,11 @@ void wxGISBarnaulDataLoaderDlg::OnOk(wxCommandEvent & event)
             CPLError(CE_Failure, CPLE_AppDefined, "Cannot load 'Memory' driver");
             return;
         }
+        
+        OGRwkbGeometryType eGeomType = GetGeometryType(pFeatureDataset); 
 
         OGRCompatibleDataSource* poOutDS = poMEMDrv->CreateOGRCompatibleDataSource("OutDS", NULL);
-        OGRLayer* poOutLayer = poOutDS->CreateLayer("output", SpaRef, pFeatureDataset->GetGeometryType(), NULL);
+        OGRLayer* poOutLayer = poOutDS->CreateLayer("output", SpaRef, eGeomType, NULL);
         
         // create fields based on two datasets
         wxArrayString saFieldNames;
@@ -261,45 +306,52 @@ void wxGISBarnaulDataLoaderDlg::OnOk(wxCommandEvent & event)
             OGRFieldDefn *pField = poFields->GetFieldDefn(i);
             OGRFieldDefn oFieldDefn(pField);
             oFieldDefn.SetName(Transliterate(pField->GetNameRef()));
-            if(saFieldNames.Index(wxString::FromUTF8(oFieldDefn.GetName()) != wxNOT_FOUND)
+            if(saFieldNames.Index(wxString::FromUTF8(oFieldDefn.GetNameRef())) != wxNOT_FOUND)
             {
                 wxString sAppend = wxString::Format(wxT("%.2d"), i + 1);
-                wxString sNewFieldName = wxString::FromUTF8(oFieldDefn.GetName()) + sAppend;
+                wxString sNewFieldName = wxString::FromUTF8(oFieldDefn.GetNameRef()) + sAppend;
                 oFieldDefn.SetName(sNewFieldName.ToUTF8());
             }            
                 
             poOutLayer->CreateField(&oFieldDefn); 
             
-            saFieldNames.Add(wxString::FromUTF8(oFieldDefn.GetName()));               
+            saFieldNames.Add(wxString::FromUTF8(oFieldDefn.GetNameRef()));               
         }
         
         poFields = pTable->GetDefinition();
-        for (size_t i = 0; i < poFields->GetFieldCount(); ++i)
+        int nSecondPartFieldsCount = poFields->GetFieldCount();
+        for (size_t i = 0; i < nSecondPartFieldsCount; ++i)
         {
             OGRFieldDefn *pField = poFields->GetFieldDefn(i);
             OGRFieldDefn oFieldDefn(pField);
             oFieldDefn.SetName(Transliterate(pField->GetNameRef()));
-            if(saFieldNames.Index(wxString::FromUTF8(oFieldDefn.GetName()) != wxNOT_FOUND)
+            if(saFieldNames.Index(wxString::FromUTF8(oFieldDefn.GetNameRef())) != wxNOT_FOUND)
             {
                 wxString sAppend = wxString::Format(wxT("%.2d"), i + 1);
-                wxString sNewFieldName = wxString::FromUTF8(oFieldDefn.GetName()) + sAppend;
+                wxString sNewFieldName = wxString::FromUTF8(oFieldDefn.GetNameRef()) + sAppend;
                 oFieldDefn.SetName(sNewFieldName.ToUTF8());
             }            
                 
             poOutLayer->CreateField(&oFieldDefn); 
             
-            saFieldNames.Add(wxString::FromUTF8(oFieldDefn.GetName()));               
+            saFieldNames.Add(wxString::FromUTF8(oFieldDefn.GetNameRef()));               
         }
         
         // add style layer 
+        OGRFieldDefn oStyleDefn("OGR_STYLE", OFTString);
+        oStyleDefn.SetWidth(255);
+        poOutLayer->CreateField(&oStyleDefn);
 
         wxGISFeatureDataset* pGISFeatureDataset = new wxGISFeatureDataset("", enumVecMem, poOutLayer, poOutDS);
 
-        int nCounter(0);
-        wxGISProgressDlg ProgressDlg(_("Form join feature dataset"), _("Begin operation..."), pFeatureDataset->GetFeatureCount(true), this);
+        int nCounter(0);   
+        ProgressDlg.SetRange(pFeatureDataset->GetFeatureCount(true));     
+        ProgressDlg.PutMessage(wxString::Format(_("Force geometry field to %s"), OGRGeometryTypeToName(eGeomType)), wxNOT_FOUND, enumGISMessageWarning);
+        
 		ProgressDlg.ShowProgress(true);
 		
 		wxGISFeature Feature;
+		pFeatureDataset->Reset();
 		while ((Feature = pFeatureDataset->Next()).IsOk())
 		{    
 			ProgressDlg.SetValue(nCounter++);
@@ -310,16 +362,94 @@ void wxGISBarnaulDataLoaderDlg::OnOk(wxCommandEvent & event)
 			
 			//join and fill values to new feature
 			
-			/*wxGISFeature Feature = pGISFeatureDataset->CreateFeature();
-            Feature.SetFID((*iter)->GetId());
+			
+			wxGISGeometry Geom = Feature.GetGeometry();
+			if(!Geom.IsOk())
+			{
+			    ProgressDlg.PutMessage(wxString::Format(_("Skip %ld feature"), Feature.GetFID()), wxNOT_FOUND, enumGISMessageWarning);
+			    continue;
+			}
+			OGRwkbGeometryType eFeatureGeomType = Geom.GetType();
+			OGRGeometry *pNewGeom = NULL;
+			if (eFeatureGeomType != eGeomType)
+            {
+                switch (eGeomType)
+                {
+                case wkbLineString:
+                    pNewGeom = OGRGeometryFactory::forceToLineString(Geom.Copy());
+                    break;
+                case wkbPolygon:
+                    pNewGeom = OGRGeometryFactory::forceToPolygon(Geom.Copy());
+                    break;
+                case wkbMultiPoint:
+                    pNewGeom = OGRGeometryFactory::forceToMultiPoint(Geom.Copy());
+                    break;
+                case wkbMultiLineString:
+                    pNewGeom = OGRGeometryFactory::forceToMultiLineString(Geom.Copy());
+                    break;
+                case wkbMultiPolygon:
+                    pNewGeom = OGRGeometryFactory::forceToMultiPolygon(Geom.Copy());
+                    break;
+                case wkbPoint:
+                default:
+                    pNewGeom = Geom.Copy();
+                    break;
+                };
+
+            }
+            else
+            {
+                pNewGeom = Geom.Copy();
+            }
+
+            
+            wxGISFeature newFeature = pGISFeatureDataset->CreateFeature();
+            
+            // set geometry
+            newFeature.SetGeometryDirectly(wxGISGeometry(pNewGeom, false));
+            
+            // set fields from feature class
+            for(int i = 0; i < nFirstPartFieldsCount; ++i)
+            {
+                newFeature.SetField(i, Feature.GetRawField(i));    
+            }
+            
+            // set style
+            newFeature.SetField("OGR_STYLE", Feature.GetStyleString());
+            
+            // set fields from table if any exist
+            wxString sFieldValue = Feature.GetFieldAsString(sInputFCPathFieldName);
+            wxGISFeature Row = FindRow(sInputTabPathFieldName, sFieldValue, pTable);
+            if(Row.IsOk())
+            {
+                for(int i = 0; i < nSecondPartFieldsCount; ++i)
+                {
+                    newFeature.SetField(i + nFirstPartFieldsCount, Row.GetRawField(i)); 
+                }
+            }            
             
             if( pGISFeatureDataset->StoreFeature( Feature ) != OGRERR_NONE )
             {
 		        const char* err = CPLGetLastErrorMsg();
                 wxString sErr(err, wxConvUTF8);
-                wxLogError(sErr);
-	        }*/
+                ProgressDlg.PutMessage(sErr, wxNOT_FOUND, enumGISMessageError);
+	        }
 		}
+		
+		// delete if exist layer with same name on server
+		DeleteExistLayer(sOutputName);
+		
+		// upload to server
+		if(!m_pResourceGroup->CreateVectorLayer(sOutputName, pGISFeatureDataset, wkbUnknown, &ProgressDlg))
+		{
+		    ProgressDlg.PutMessage(wxString(_("CreateVectorLayer failed")), wxNOT_FOUND, enumGISMessageError);
+		    ShowMessageDialog(this, ProgressDlg.GetWarnings());
+		    return;
+		}
+		
+		ShowMessageDialog(this, ProgressDlg.GetWarnings());
+		
+		m_pResourceGroup->OnGetUpdates();
     }
 
 
@@ -332,6 +462,74 @@ void wxGISBarnaulDataLoaderDlg::OnOk(wxCommandEvent & event)
         SetReturnCode(wxID_OK);
         this->Show(false);
     }
+}
+
+OGRwkbGeometryType wxGISBarnaulDataLoaderDlg::GetGeometryType(wxGISFeatureDataset * const pDSet)
+{    
+    OGRwkbGeometryType eType = pDSet->GetGeometryType();    
+    OGRwkbGeometryType e2DType = wkbFlatten(eType);    
+    if(e2DType > 0 && e2DType < 7)
+    {
+        if(e2DType < 4)
+            return (OGRwkbGeometryType)(e2DType + 3); // to multi
+        return e2DType;
+    }
+
+    
+    wxGISFeature Feature;
+    pDSet->Reset();
+	while ((Feature = pDSet->Next()).IsOk())
+	{	    
+	    wxGISGeometry Geom = Feature.GetGeometry();
+		if(Geom.IsOk())
+		{
+		    e2DType = wkbFlatten(Geom.GetType());
+		    if(e2DType > 0 && e2DType < 7)
+            {
+                if(e2DType < 4)
+                    e2DType = (OGRwkbGeometryType)(e2DType + 3); // to multi
+                break;
+            }
+		}	
+    }
+    
+    return e2DType;
+}
+
+void wxGISBarnaulDataLoaderDlg::DeleteExistLayer(const wxString& sLayerName)
+{
+    wxGxObjectList list = m_pResourceGroup->GetChildren();
+    
+    wxGxObjectList::const_iterator iter;
+    for(iter = list.begin(); iter != list.end(); ++iter)
+    {
+        wxGxObject *current = *iter;
+        IGxObjectEdit *pEdit = dynamic_cast<IGxObjectEdit*>(current);
+        if(pEdit)
+        {
+            if(current->GetName().IsSameAs(sLayerName))  
+            {
+                pEdit->Delete();
+                return;
+            }  
+        }
+    }
+}
+
+wxGISFeature wxGISBarnaulDataLoaderDlg::FindRow(const wxString &sFieldName, 
+                                                const wxString &sFieldValue, 
+                                                wxGISTable * const pTable)
+{
+    wxGISFeature Feature;
+    pTable->Reset();
+	while ((Feature = pTable->Next()).IsOk())
+	{
+	    wxString sTestValue = Feature.GetFieldAsString(sFieldName);
+	    if(sTestValue.IsSameAs(sFieldValue))
+	        break;
+    }	
+    
+    return Feature;
 }
 
 void wxGISBarnaulDataLoaderDlg::SerializeFramePos(bool bSave)
@@ -377,14 +575,4 @@ void wxGISBarnaulDataLoaderDlg::SerializeFramePos(bool bSave)
         }
     }
 }
-
-
-/*
-
-wxGISFeatureDataset *wxGISBarnaulDataLoaderDlg::GetInputDataset() const
-{
-    return m_pDS;
-}
-
-*/
 

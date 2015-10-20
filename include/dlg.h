@@ -38,7 +38,12 @@
 class WXDLLIMPEXP_GIS_BDL wxGISBarnaulDataLoaderDlg : public wxDialog 
 {
 public:
-	wxGISBarnaulDataLoaderDlg( wxGxNGWResourceGroupUI *pResourceGroup, wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = _("Import spatial data"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize, long style = wxCAPTION|wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER|wxCLIP_CHILDREN );
+	wxGISBarnaulDataLoaderDlg( wxGxNGWResourceGroupUI *pResourceGroup, 
+	                           wxWindow* parent, wxWindowID id = wxID_ANY, 
+	                           const wxString& title = _("Import spatial data"), 
+	                           const wxPoint& pos = wxDefaultPosition, 
+	                           const wxSize& size = wxDefaultSize, 
+	                           long style = wxCAPTION|wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER|wxCLIP_CHILDREN );
 	~wxGISBarnaulDataLoaderDlg();
     bool IsValid(void);
     //events
@@ -47,7 +52,10 @@ public:
     void OnParamChanged(wxGISGPParamEvent& event);
 protected:
     void SerializeFramePos(bool bSave);
-
+    wxGISFeature FindRow(const wxString &sFieldName, const wxString &sFieldValue, 
+                         wxGISTable * const pTable);
+    void DeleteExistLayer(const wxString& sLayerName);
+    OGRwkbGeometryType GetGeometryType(wxGISFeatureDataset * const pDSet);
 protected:
 	wxStdDialogButtonSizer* m_sdbSizer;
 	wxButton* m_sdbSizerCancel;
