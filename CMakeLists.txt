@@ -164,3 +164,6 @@ endif()
 include(install)
 include(uninstall)
 
+#export(PACKAGE barna)
+export(TARGETS ${LIB_NAME} FILE barnaulTargets.cmake)
+       

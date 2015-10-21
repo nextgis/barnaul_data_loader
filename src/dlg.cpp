@@ -94,7 +94,7 @@ wxGISBarnaulDataLoaderDlg::wxGISBarnaulDataLoaderDlg( wxGxNGWResourceGroupUI *pR
     pParamSrcTableJoinField->Advise(this);
     
     // select geometry type
-    wxGISGPParameter *pParamOutGeomType = new wxGISGPParameter(wxT("src_fclass_gt"), _("Select output geometry type"), enumGISGPParameterTypeRequired, enumGISGPParamDTFieldIntegerChoice);
+    wxGISGPParameter *pParamOutGeomType = new wxGISGPParameter(wxT("src_fclass_gt"), _("Select output geometry type"), enumGISGPParameterTypeRequired, enumGISGPParamDTIntegerChoice);
     pParamOutGeomType->SetDirection(enumGISGPParameterDirectionInput);
     pParamOutGeomType->AddDependency(wxT("src_fclass"));
     
@@ -189,6 +189,7 @@ void wxGISBarnaulDataLoaderDlg::OnParamChanged(wxGISGPParamEvent& event)
         {
             wxString sPath = event.GetParamValue();
             wxFileName Name(sPath);
+            m_Parameters[5]->SetHasBeenValidated(false);   
             m_Parameters[5]->SetValue(wxVariant(Name.GetName(), wxT("dst_name")));
         }    
         
@@ -219,6 +220,7 @@ void wxGISBarnaulDataLoaderDlg::OnParamChanged(wxGISGPParamEvent& event)
             
                     wxGISFeature Feature;
                     std::set<OGRwkbGeometryType> geomTypes;
+                    pFeatureDataset->Reset();
                     while ((Feature = pFeatureDataset->Next()).IsOk())
 		            {
 		                wxGISGeometry geom = Feature.GetGeometry();
@@ -236,13 +238,15 @@ void wxGISBarnaulDataLoaderDlg::OnParamChanged(wxGISGPParamEvent& event)
                     }    
                     
                     wxGISGPValueDomain* pDomain = m_Parameters[4]->GetDomain();
-                    pDomain->Clear();                    
+                    pDomain->Clear();
+                    m_Parameters[4]->SetHasBeenValidated(false);   
+                    //m_Parameters[4]->SetValid(true);                  
                        
                     for (std::set<OGRwkbGeometryType>::const_iterator it = geomTypes.begin(); it != geomTypes.end(); ++it)
                     {
                         OGRwkbGeometryType eGeomType = *it;
                         pDomain->AddValue((long)eGeomType, OGRGeometryTypeToName(eGeomType));   
-                    }            
+                    }      
                 }
             }
         }       
