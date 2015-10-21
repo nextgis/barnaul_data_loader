@@ -104,6 +104,14 @@ wxGISBarnaulDataLoaderDlg::wxGISBarnaulDataLoaderDlg( wxGxNGWResourceGroupUI *pR
     m_Parameters.Add(pParamOutGeomType);
     pParamOutGeomType->Advise(this);
     
+    // check filter out invalid geometry
+    wxGISGPParameter *pParamFilter = new wxGISGPParameter(wxT("src_fclass_invalid"), _("Check to filter invalid geometry"), enumGISGPParameterTypeRequired, enumGISGPParamDTBool);
+    pParamFilter->SetDirection(enumGISGPParameterDirectionInput);
+    pParamFilter->SetValue(true);
+    
+    m_Parameters.Add(pParamFilter);
+    pParamFilter->Advise(this);
+    
     // select output name
     wxGISGPParameter *pOutputName = new wxGISGPParameter(wxT("dst_name"), _("Set outpul layer name"), enumGISGPParameterTypeRequired, enumGISGPParamDTFieldAnyChoice);
     pOutputName->SetDirection(enumGISGPParameterDirectionOutput);
@@ -131,9 +139,12 @@ wxGISBarnaulDataLoaderDlg::wxGISBarnaulDataLoaderDlg( wxGxNGWResourceGroupUI *pR
     wxGISDTChoice *pGeomTypeChoice = new wxGISDTChoice(m_Parameters, 4, this);    
     bSizer->Add( pGeomTypeChoice, 0, wxEXPAND, 5 );
     m_paControls.push_back(pGeomTypeChoice);
- 
+    
+    wxGISDTBool *pGeomFilterCheck = new wxGISDTBool(m_Parameters, 5, this);    
+    bSizer->Add( pGeomFilterCheck, 0, wxEXPAND, 5 );
+    m_paControls.push_back(pGeomFilterCheck); 
    
-    wxGISDTText* pInText = new wxGISDTText(m_Parameters, 5, this);    
+    wxGISDTText* pInText = new wxGISDTText(m_Parameters, 6, this);    
     bSizer->Add( pInText, 0, wxEXPAND, 5 );
     m_paControls.push_back(pInText);
     
@@ -185,12 +196,12 @@ void wxGISBarnaulDataLoaderDlg::OnParamChanged(wxGISGPParamEvent& event)
 {
     if(event.GetId() == 0)
     {
-        if(!m_Parameters[5]->GetAltered())
+        if(!m_Parameters[6]->GetAltered())
         {
             wxString sPath = event.GetParamValue();
             wxFileName Name(sPath);
-            m_Parameters[5]->SetHasBeenValidated(false);   
-            m_Parameters[5]->SetValue(wxVariant(Name.GetName(), wxT("dst_name")));
+            m_Parameters[6]->SetHasBeenValidated(false);   
+            m_Parameters[6]->SetValue(wxVariant(Name.GetName(), wxT("dst_name")));
         }    
         
         //if(!m_Parameters[4]->GetAltered()) not check altered
@@ -274,8 +285,9 @@ void wxGISBarnaulDataLoaderDlg::OnOk(wxCommandEvent & event)
     wxString sInputTabPath = m_Parameters[1]->GetValue().GetString();
     wxString sInputFCPathFieldName = m_Parameters[2]->GetValue().GetString();
     wxString sInputTabPathFieldName = m_Parameters[3]->GetValue().GetString();
-    OGRwkbGeometryType eGeomType = (OGRwkbGeometryType)m_Parameters[4]->GetValue().GetLong();
-    wxString sOutputName = m_Parameters[5]->GetValue().GetString();
+    OGRwkbGeometryType eGeomType = (OGRwkbGeometryType)(m_Parameters[4]->GetValue().GetLong() + 3);
+    bool bFilterIvalidGeometry = m_Parameters[5]->GetValue().GetBool();
+    wxString sOutputName = m_Parameters[6]->GetValue().GetString();
     wxGxCatalogBase* pCat = GetGxCatalog();
     if(pCat)
     {
@@ -433,14 +445,14 @@ void wxGISBarnaulDataLoaderDlg::OnOk(wxCommandEvent & event)
 			wxGISGeometry Geom = Feature.GetGeometry();
 			if(!Geom.IsOk())
 			{
-			    ProgressDlg.PutMessage(wxString::Format(_("Skip %ld feature"), Feature.GetFID()), wxNOT_FOUND, enumGISMessageWarning);
+			    //ProgressDlg.PutMessage(wxString::Format(_("Skip %ld feature"), Feature.GetFID()), wxNOT_FOUND, enumGISMessageWarning);
 			    continue;
 			}
 			OGRwkbGeometryType eFeatureGeomType = Geom.GetType();
 			
 			if(eFeatureGeomType != eGeomType && eFeatureGeomType + 3 != eGeomType)
 			{
-			    ProgressDlg.PutMessage(wxString::Format(_("Skip %ld feature"), Feature.GetFID()), wxNOT_FOUND, enumGISMessageWarning);
+			    //ProgressDlg.PutMessage(wxString::Format(_("Skip %ld feature"), Feature.GetFID()), wxNOT_FOUND, enumGISMessageWarning);
 			    continue;
 			}			    
 			
@@ -514,8 +526,9 @@ void wxGISBarnaulDataLoaderDlg::OnOk(wxCommandEvent & event)
 		// delete if exist layer with same name on server
 		DeleteExistLayer(sOutputName);
 		
+		wxString sStyle(wxT("<map><layer><styleitem>OGR_STYLE</styleitem><class></class></layer></map>"));
 		// upload to server
-		if(!m_pResourceGroup->CreateVectorLayer(sOutputName, pGISFeatureDataset, wkbUnknown, &ProgressDlg))
+		if(!m_pResourceGroup->CreateVectorLayer(sOutputName, pGISFeatureDataset, wkbUnknown, sStyle, bFilterIvalidGeometry, &ProgressDlg))
 		{
 		    ProgressDlg.PutMessage(wxString(_("CreateVectorLayer failed")), wxNOT_FOUND, enumGISMessageError);
 		    ShowMessageDialog(this, ProgressDlg.GetWarnings());
