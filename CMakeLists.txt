@@ -69,6 +69,12 @@ if(GDAL_FOUND)
     ENDFOREACH()   
 endif(GDAL_FOUND)
 
+find_package(CURL REQUIRED)
+if(CURL_FOUND)
+    include_directories(${CURL_INCLUDE_DIRS})
+    add_definitions(-DHAVE_CURL)
+endif(CURL_FOUND)
+
 if(UNIX)
     option(HAVE_GTK_INTEGRATION "Set ON to build with GTK integration" OFF)
     if(HAVE_GTK_INTEGRATION)
@@ -109,7 +115,7 @@ if(wxWidgets_FOUND)
     include(${wxWidgets_USE_FILE})
 endif()
 
-find_package(WXGIS COMPONENTS core framework catalog catalogui geoprocessing geoprocessingui REQUIRED)
+find_package(WXGIS COMPONENTS core framework datasource catalog catalogui geoprocessing geoprocessingui REQUIRED)
 if(WXGIS_FOUND)
     include_directories(${WXGIS_INCLUDE_DIR})
 endif()
@@ -120,6 +126,12 @@ if(POSTGRES_FOUND)
     add_definitions(-DHAVE_PG)
 endif()
 
+option(BUILD_TRANSLATION "Set ON to build translation" ON)
+if(BUILD_TRANSLATION)
+    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/opt/)
+endif(BUILD_TRANSLATION)
+
+add_definitions(-DWXMAKINGDLL_GIS_BDL)
 
 set (HHEADERS
     ./include/cmd.h
@@ -160,6 +172,10 @@ if(UNIX)
         target_link_libraries(${LIB_NAME} ${UNITY_LIBRARIES})
     endif()
 endif()
+
+if(CURL_FOUND)
+   target_link_libraries(${LIB_NAME} ${CURL_LIBRARIES})
+endif(CURL_FOUND)
 
 include(install)
 include(uninstall)

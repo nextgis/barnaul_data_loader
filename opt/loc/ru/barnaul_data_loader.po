@@ -1,0 +1,95 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: barnaul data loader\n"
+"POT-Creation-Date: 2015-10-25 23:22+0300\n"
+"PO-Revision-Date: 2015-10-25 23:27+0300\n"
+"Last-Translator: Dmitry Baryshnikov <polimax@mail.ru>\n"
+"Language-Team: NextGIS <info@nextgis.ru>\n"
+"Language: ru_RU\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.6.11\n"
+"X-Poedit-Basepath: .\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
+"%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+"X-Poedit-KeywordsList: gettext;gettext_noop;_\n"
+"X-Poedit-SearchPath-0: ../../../include\n"
+"X-Poedit-SearchPath-1: ../../../src\n"
+
+#: ../../../src/cmd.cpp:63 ../../../include/dlg.h:43
+msgid "Import spatial data"
+msgstr "Ввод пространственных данных"
+
+#: ../../../src/cmd.cpp:74
+msgid "Geoprocessing"
+msgstr "Геопроцессинг"
+
+#: ../../../src/cmd.cpp:123 ../../../src/cmd.cpp:164
+msgid "Import spatial data to NGW"
+msgstr "Ввод пространственных данных в НГВ"
+
+#: ../../../src/dlg.cpp:57
+msgid "Set input feature class"
+msgstr "Выберите класс пространсвенных объектов"
+
+#: ../../../src/dlg.cpp:69
+msgid "Set input table"
+msgstr "Выберите таблицу"
+
+#: ../../../src/dlg.cpp:81
+msgid "Set input feature class field to join"
+msgstr "Выберите поля класса пространственных объектов для связи"
+
+#: ../../../src/dlg.cpp:89
+msgid "Set input table field to join"
+msgstr "Укажите таблицу для связи"
+
+#: ../../../src/dlg.cpp:97
+msgid "Select output geometry type"
+msgstr "Укажите тип геометрии"
+
+#: ../../../src/dlg.cpp:108
+msgid "Check to filter invalid geometry"
+msgstr "Отметьте для пропуска невалидных геометрий"
+
+#: ../../../src/dlg.cpp:116
+msgid "Set outpul layer name"
+msgstr "Введи имя выходного слоя"
+
+#: ../../../src/dlg.cpp:159
+msgid "Cancel"
+msgstr "Отмена"
+
+#: ../../../src/dlg.cpp:294
+msgid "Form join feature dataset"
+msgstr "Создание объединенного слоя"
+
+#: ../../../src/dlg.cpp:294
+msgid "Begin operation..."
+msgstr "Начать операцию..."
+
+#: ../../../src/dlg.cpp:299 ../../../src/dlg.cpp:307
+#, c-format
+msgid "Failed to get feature dataset %s"
+msgstr "Ошибка получения класса пространственных объектов %s"
+
+#: ../../../src/dlg.cpp:300 ../../../src/dlg.cpp:308 ../../../src/dlg.cpp:338
+#: ../../../src/dlg.cpp:346
+msgid "Error"
+msgstr "Ошибка"
+
+#: ../../../src/dlg.cpp:337 ../../../src/dlg.cpp:345
+#, c-format
+msgid "Failed to get table %s"
+msgstr "Не удалось получить таблицу '%s'"
+
+#: ../../../src/dlg.cpp:428
+#, c-format
+msgid "Force geometry field to %s"
+msgstr "Преобразование типа геометрии в %s"
+
+#: ../../../src/dlg.cpp:533
+msgid "CreateVectorLayer failed"
+msgstr "Ошибка создания выходного слоя"

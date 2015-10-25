@@ -107,7 +107,7 @@ wxGISBarnaulDataLoaderDlg::wxGISBarnaulDataLoaderDlg( wxGxNGWResourceGroupUI *pR
     // check filter out invalid geometry
     wxGISGPParameter *pParamFilter = new wxGISGPParameter(wxT("src_fclass_invalid"), _("Check to filter invalid geometry"), enumGISGPParameterTypeRequired, enumGISGPParamDTBool);
     pParamFilter->SetDirection(enumGISGPParameterDirectionInput);
-    pParamFilter->SetValue(true);
+    pParamFilter->SetValue(false);
     
     m_Parameters.Add(pParamFilter);
     pParamFilter->Advise(this);
@@ -627,12 +627,12 @@ void wxGISBarnaulDataLoaderDlg::SerializeFramePos(bool bSave)
         return;
 		
 	wxString sAppName = GetApplication()->GetAppName();	
-	int x, y, w, h;
-    GetClientSize(&w, &h);
-    GetPosition(&x, &y);
+	int x=0, y=0, w=400, h=300;    
             
     if (bSave)
     {
+        GetPosition(&x, &y);
+        GetClientSize(&w, &h);
         if (IsMaximized())
             oConfig.Write(enumGISHKCU, sAppName + wxString(wxT("/barnaul_dataloader/frame/maxi")), true);
         else
@@ -643,9 +643,13 @@ void wxGISBarnaulDataLoaderDlg::SerializeFramePos(bool bSave)
             oConfig.Write(enumGISHKCU, sAppName + wxString(wxT("/barnaul_dataloader/frame/xpos")), x);
             oConfig.Write(enumGISHKCU, sAppName + wxString(wxT("/barnaul_dataloader/frame/ypos")), y);
         }
+        oConfig.Write(enumGISHKCU, sAppName + wxString(wxT("/barnaul_dataloader/first_run")), false);
     }
     else
     {
+        if (oConfig.ReadBool(enumGISHKCU, sAppName + wxString(wxT("/barnaul_dataloader/first_run")), true))
+            return;
+
         //load
         bool bMaxi = oConfig.ReadBool(enumGISHKCU, sAppName + wxString(wxT("/barnaul_dataloader/frame/maxi")), false);
         if (!bMaxi)
