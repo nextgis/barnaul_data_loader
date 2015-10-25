@@ -361,6 +361,9 @@ void wxGISBarnaulDataLoaderDlg::OnOk(wxCommandEvent & event)
         {
             pTable->Cache(&ProgressDlg);
         }
+
+        // set UTF-8 but may be should be encoding list?
+        pTable->SetEncoding(wxFONTENCODING_UTF8);
         
     	// create temp memory dataset ready to upload to the NGW
     	
@@ -422,12 +425,16 @@ void wxGISBarnaulDataLoaderDlg::OnOk(wxCommandEvent & event)
         poOutLayer->CreateField(&oStyleDefn);
 
         wxGISFeatureDataset* pGISFeatureDataset = new wxGISFeatureDataset("", enumVecMem, poOutLayer, poOutDS);
+        pGISFeatureDataset->SetEncoding(wxFONTENCODING_UTF8);
+        wxGISPointerHolder holder(pGISFeatureDataset);
 
         int nCounter(0);   
         ProgressDlg.SetRange(pFeatureDataset->GetFeatureCount(true));     
         ProgressDlg.PutMessage(wxString::Format(_("Force geometry field to %s"), OGRGeometryTypeToName(eGeomType)), wxNOT_FOUND, enumGISMessageWarning);
         
 		ProgressDlg.ShowProgress(true);
+
+        OGRFeatureDefn* pDefn = pGISFeatureDataset->GetDefinition();
 		
 		wxGISFeature Feature;
 		pFeatureDataset->Reset();
@@ -497,7 +504,9 @@ void wxGISBarnaulDataLoaderDlg::OnOk(wxCommandEvent & event)
             // set fields from feature class
             for(int i = 0; i < nFirstPartFieldsCount; ++i)
             {
-                newFeature.SetField(i, Feature.GetRawField(i));    
+                OGRFieldDefn* pField = pDefn->GetFieldDefn(i);
+                SetField(newFeature, i, Feature, i, pField->GetType());
+                //newFeature.SetField(i, Feature.GetRawField(i));    
             }
             
             // set style
@@ -511,7 +520,9 @@ void wxGISBarnaulDataLoaderDlg::OnOk(wxCommandEvent & event)
             {
                 for(int i = 0; i < nSecondPartFieldsCount; ++i)
                 {
-                    newFeature.SetField(i + nFirstPartFieldsCount, Row.GetRawField(i)); 
+                    OGRFieldDefn* pField = pDefn->GetFieldDefn(i + nFirstPartFieldsCount);
+                    SetField(newFeature, i + nFirstPartFieldsCount, Row, i, pField->GetType());
+                    //newFeature.SetField(i + nFirstPartFieldsCount, Row.GetRawField(i)); 
                 }
             }            
             
@@ -550,6 +561,46 @@ void wxGISBarnaulDataLoaderDlg::OnOk(wxCommandEvent & event)
         SetReturnCode(wxID_OK);
         this->Show(false);
     }
+}
+
+void wxGISBarnaulDataLoaderDlg::SetField(wxGISFeature& feature, int newIndex, const wxGISFeature &row, int index, OGRFieldType eType)
+{
+    switch (eType)
+    {
+    case OFTRealList:
+        feature.SetField(newIndex, row.GetFieldAsDoubleList(index));
+        break;
+    case OFTIntegerList:
+        feature.SetField(newIndex, row.GetFieldAsIntegerList(index));
+        break;
+    case OFTStringList:
+        feature.SetField(newIndex, row.GetFieldAsStringList(index));
+        break;
+    case OFTDate:
+    case OFTTime:
+    case OFTDateTime:
+    case OFTReal:
+    case OFTInteger:
+        feature.SetField(newIndex, row.GetRawField(index));
+        break;
+    case OFTString:
+#ifdef CPL_RECODE_ICONV
+
+#else
+        if (bFastConv)
+        {
+            const char* pszStr = row.GetFieldAsChar(index);
+            if (oEncConverter.Convert(pszStr, szMaxStr))
+            {
+                feature.SetField(newIndex, szMaxStr);
+                break;
+            }
+        }
+#endif //CPL_RECODE_ICONV
+    default:
+        feature.SetField(newIndex, row.GetFieldAsString(index));
+        break;
+    };
 }
 
 OGRwkbGeometryType wxGISBarnaulDataLoaderDlg::GetGeometryType(wxGISFeatureDataset * const pDSet)

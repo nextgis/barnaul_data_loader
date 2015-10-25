@@ -56,6 +56,8 @@ protected:
                          wxGISTable * const pTable);
     void DeleteExistLayer(const wxString& sLayerName);
     OGRwkbGeometryType GetGeometryType(wxGISFeatureDataset * const pDSet);
+    void SetField(wxGISFeature& feature, int newIndex, const wxGISFeature &row, int index, OGRFieldType eType);
+
 protected:
 	wxStdDialogButtonSizer* m_sdbSizer;
 	wxButton* m_sdbSizerCancel;
