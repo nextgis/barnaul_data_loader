@@ -2,14 +2,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: barnaul data loader\n"
 "POT-Creation-Date: 2015-10-25 23:22+0300\n"
-"PO-Revision-Date: 2015-10-26 02:08+0300\n"
+"PO-Revision-Date: 2015-10-27 00:20+0300\n"
 "Last-Translator: Dmitry Baryshnikov <polimax@mail.ru>\n"
 "Language-Team: NextGIS <info@nextgis.ru>\n"
 "Language: ru_RU\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 1.6.11\n"
+"X-Generator: Poedit 1.7.5\n"
 "X-Poedit-Basepath: .\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
 "%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
@@ -32,7 +32,7 @@ msgstr "Ввод пространственных данных в НГВ"
 
 #: ../../../src/dlg.cpp:57
 msgid "Set input feature class"
-msgstr "Выберите класс пространсвенных объектов"
+msgstr "Выберите класс пространственных объектов"
 
 #: ../../../src/dlg.cpp:69
 msgid "Set input table"
@@ -40,11 +40,11 @@ msgstr "Выберите таблицу"
 
 #: ../../../src/dlg.cpp:81
 msgid "Set input feature class field to join"
-msgstr "Выберите поля класса пространственных объектов для связи"
+msgstr "Выберите поле класса пространственных объектов для связи"
 
 #: ../../../src/dlg.cpp:89
 msgid "Set input table field to join"
-msgstr "Укажите таблицу для связи"
+msgstr "Выберите поле таблицы для связи"
 
 #: ../../../src/dlg.cpp:97
 msgid "Select output geometry type"
@@ -75,8 +75,8 @@ msgstr "Начать операцию..."
 msgid "Failed to get feature dataset %s"
 msgstr "Ошибка получения класса пространственных объектов %s"
 
-#: ../../../src/dlg.cpp:300 ../../../src/dlg.cpp:308 ../../../src/dlg.cpp:338
-#: ../../../src/dlg.cpp:346
+#: ../../../src/dlg.cpp:300 ../../../src/dlg.cpp:308
+#: ../../../src/dlg.cpp:338 ../../../src/dlg.cpp:346
 msgid "Error"
 msgstr "Ошибка"
 
