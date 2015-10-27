@@ -283,8 +283,10 @@ void wxGISBarnaulDataLoaderDlg::OnOk(wxCommandEvent & event)
 {
     wxString sInputFCPath = m_Parameters[0]->GetValue().GetString();
     wxString sInputTabPath = m_Parameters[1]->GetValue().GetString();
-    wxString sInputFCPathFieldName = m_Parameters[2]->GetValue().GetString();
-    wxString sInputTabPathFieldName = m_Parameters[3]->GetValue().GetString();
+	int nPos = m_Parameters[2]->GetSelDomainValue();
+	wxString sInputFCPathFieldName = m_Parameters[2]->GetDomain()->GetName(nPos);
+	nPos = m_Parameters[3]->GetSelDomainValue();	
+    wxString sInputTabPathFieldName = m_Parameters[3]->GetDomain()->GetName(nPos);
     OGRwkbGeometryType eGeomType = (OGRwkbGeometryType)(m_Parameters[4]->GetValue().GetLong() + 3);
     bool bFilterIvalidGeometry = m_Parameters[5]->GetValue().GetBool();
     wxString sOutputName = m_Parameters[6]->GetValue().GetString();
@@ -317,6 +319,7 @@ void wxGISBarnaulDataLoaderDlg::OnOk(wxCommandEvent & event)
                 return;
             }
         }
+		pFeatureDataset->SetEncoding(wxFONTENCODING_CP1251);
         
         // for cached datasources 
         if (!pFeatureDataset->IsCached())
@@ -330,6 +333,7 @@ void wxGISBarnaulDataLoaderDlg::OnOk(wxCommandEvent & event)
         {            
             SpaRef = wxGISSpatialReference(wxT("PROJCS[\"unnamed\",GEOGCS[\"Krassovsky, 1942\",DATUM[\"unknown\",SPHEROID[\"krass\",6378245,298.3],TOWGS84[23.92,-141.27,-80.9,-0,0.35,0.82,-0.12]],PRIMEM[\"Greenwich\",0],UNIT[\"degree\",0.0174532925199433]],PROJECTION[\"Hotine_Oblique_Mercator_Azimuth_Center\"],PARAMETER[\"latitude_of_center\",53.3090998192],PARAMETER[\"longitude_of_center\",82.466678914],PARAMETER[\"azimuth\",-1.2302179328],PARAMETER[\"rectified_grid_angle\",0],PARAMETER[\"scale_factor\",0.9999265173],PARAMETER[\"false_easting\",-77391.44014],PARAMETER[\"false_northing\",10469.46443],UNIT[\"Meter\",1]]"));
         }
+		
         
         wxGxDataset* pGxTable = dynamic_cast<wxGxDataset*>(pCat->FindGxObject(sInputTabPath));
         if(!pGxTable)
@@ -355,15 +359,15 @@ void wxGISBarnaulDataLoaderDlg::OnOk(wxCommandEvent & event)
                 return;
             }
         } 
+		
+        // set UTF-8 but may be should be encoding list?
+        pTable->SetEncoding(wxFONTENCODING_UTF8);
         
         // for cached datasources 
         if (!pTable->IsCached())
         {
             pTable->Cache(&ProgressDlg);
         }
-
-        // set UTF-8 but may be should be encoding list?
-        pTable->SetEncoding(wxFONTENCODING_UTF8);
         
     	// create temp memory dataset ready to upload to the NGW
     	
@@ -387,7 +391,8 @@ void wxGISBarnaulDataLoaderDlg::OnOk(wxCommandEvent & event)
         {
             OGRFieldDefn *pField = poFields->GetFieldDefn(i);
             OGRFieldDefn oFieldDefn(pField);
-            oFieldDefn.SetName(Transliterate(pField->GetNameRef()));
+			wxString sFieldName(pField->GetNameRef(), wxCSConv(pFeatureDataset->GetEncoding()));
+            oFieldDefn.SetName(Transliterate(sFieldName));
             if(saFieldNames.Index(wxString::FromUTF8(oFieldDefn.GetNameRef())) != wxNOT_FOUND)
             {
                 wxString sAppend = wxString::Format(wxT("%.2d"), i + 1);
@@ -665,7 +670,9 @@ wxGISFeature wxGISBarnaulDataLoaderDlg::FindRow(const wxString &sFieldName,
 	{
 	    wxString sTestValue = Feature.GetFieldAsString(sFieldName);
 	    if(sTestValue.IsSameAs(sFieldValue))
+		{
 	        break;
+		}
     }	
     
     return Feature;
