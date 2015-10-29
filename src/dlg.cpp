@@ -231,6 +231,9 @@ void wxGISBarnaulDataLoaderDlg::OnParamChanged(wxGISGPParamEvent& event)
             
                     wxGISFeature Feature;
                     std::set<OGRwkbGeometryType> geomTypes;
+                    
+                    int adFeatureCount[10] = {0};
+                    
                     pFeatureDataset->Reset();
                     while ((Feature = pFeatureDataset->Next()).IsOk())
 		            {
@@ -244,6 +247,7 @@ void wxGISBarnaulDataLoaderDlg::OnParamChanged(wxGISGPParamEvent& event)
 		                    if(eGeomType > 3) // show not multi
 		                        eGeomType = (OGRwkbGeometryType)(eGeomType - 3);
 		                    geomTypes.insert(eGeomType);
+		                    adFeatureCount[eGeomType]++;
 		                }
 		                
                     }    
@@ -256,7 +260,8 @@ void wxGISBarnaulDataLoaderDlg::OnParamChanged(wxGISGPParamEvent& event)
                     for (std::set<OGRwkbGeometryType>::const_iterator it = geomTypes.begin(); it != geomTypes.end(); ++it)
                     {
                         OGRwkbGeometryType eGeomType = *it;
-                        pDomain->AddValue((long)eGeomType, OGRGeometryTypeToName(eGeomType));   
+                        wxString sDomainName = wxString::Format(wxT("%s (%d)"), wxGetTranslation(OGRGeometryTypeToName(eGeomType)).c_str(), adFeatureCount[eGeomType]);
+                        pDomain->AddValue((long)eGeomType, sDomainName);   
                     }      
                 }
             }
