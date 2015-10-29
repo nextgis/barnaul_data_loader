@@ -173,14 +173,14 @@ LicenseLangString myLicenseData ${LANG_RUSSIAN} "${SOURCE_PATH}\docs\COPYING_RU"
   VIAddVersionKey /LANG=${LANG_ENGLISH} "Comments" "NextGIS Manager"
   VIAddVersionKey /LANG=${LANG_ENGLISH} "FileDescription" "NextGIS Manager"
   VIAddVersionKey /LANG=${LANG_ENGLISH} "FileVersion" "${VERSION}.0"
-  VIAddVersionKey /LANG=${LANG_ENGLISH} "LegalCopyright" "© 2009-2014 Dmitry Baryshnikov, © 2014 NextGIS"
+  VIAddVersionKey /LANG=${LANG_ENGLISH} "LegalCopyright" "© 2009-2014 Dmitry Baryshnikov, © 2014-2015 NextGIS"
   VIAddVersionKey /LANG=${LANG_ENGLISH} "ProductVersion" "${VERSION}.0"
  
   VIAddVersionKey /LANG=${LANG_RUSSIAN} "ProductName" "nextgis/manager"
   VIAddVersionKey /LANG=${LANG_RUSSIAN} "Comments" "NextGIS Manager"
   VIAddVersionKey /LANG=${LANG_RUSSIAN} "FileDescription" "NextGIS Manager"
   VIAddVersionKey /LANG=${LANG_RUSSIAN} "FileVersion" "${VERSION}.0" 
-  VIAddVersionKey /LANG=${LANG_RUSSIAN} "LegalCopyright" "© 2009-2014 Dmitry Baryshnikov, © 2014 NextGIS"
+  VIAddVersionKey /LANG=${LANG_RUSSIAN} "LegalCopyright" "© 2009-2014 Dmitry Baryshnikov, © 2014-2015 NextGIS"
   VIAddVersionKey /LANG=${LANG_RUSSIAN} "ProductVersion" "${VERSION}.0"
 
 ;--------------------------------
