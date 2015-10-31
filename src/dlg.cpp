@@ -271,20 +271,22 @@ void wxGISBarnaulDataLoaderDlg::OnParamChanged(wxGISGPParamEvent& event)
     }
 
 	    
-    for(size_t i = 0; i < m_paControls.size(); ++i)
-        if(m_paControls[i])
+    for (size_t i = 0; i < m_paControls.size(); ++i)
+    {
+        if (m_paControls[i])
+        {
             m_paControls[i]->OnParamChanged(event);
-			
+        }
+    }
+    			
 	if(event.GetId() ==  0)
 	{
-		wxLogError("%d - %s - %s", m_dDefaultGeomType, m_sMiFieldName.c_str(), m_sCSVFieldName.c_str());
 		//if(!m_Parameters[4]->GetAltered())
 		{
 			wxGISGPValueDomain *pDomain = m_Parameters[4]->GetDomain();
 			if(NULL != pDomain)
 			{
 				int nPos = pDomain->GetPosByValue((long)m_dDefaultGeomType);
-				wxLogError("pos - %d size = %d", nPos, pDomain->GetCount());
 				m_Parameters[4]->SetSelDomainValue(nPos);
 			}
 		}
@@ -733,6 +735,30 @@ void wxGISBarnaulDataLoaderDlg::SerializeFramePos(bool bSave)
             
     if (bSave)
     {
+        // save parameters
+        wxGISGPValueDomain* pDomain = m_Parameters[2]->GetDomain();
+        wxString sInputFCPathFieldName;
+        if (NULL != pDomain)
+        {
+            int nPos = m_Parameters[2]->GetSelDomainValue();
+            sInputFCPathFieldName = pDomain->GetName(nPos);
+        }
+
+        pDomain = m_Parameters[3]->GetDomain();
+        wxString sInputTabPathFieldName;
+        if (NULL != pDomain)
+        {
+            int nPos = m_Parameters[3]->GetSelDomainValue();
+            sInputTabPathFieldName = pDomain->GetName(nPos);
+        }
+
+        OGRwkbGeometryType eGeomType = (OGRwkbGeometryType)(m_Parameters[4]->GetValue().GetLong());
+        if (eGeomType > 3) // show not multi
+            eGeomType = (OGRwkbGeometryType)(eGeomType - 3);
+        oConfig.Write(enumGISHKCU, sAppName + wxString(wxT("/barnaul_dataloader/data/geom_type")), (int)eGeomType);
+        oConfig.Write(enumGISHKCU, sAppName + wxString(wxT("/barnaul_dataloader/data/mi_fld_name")), sInputFCPathFieldName);
+        oConfig.Write(enumGISHKCU, sAppName + wxString(wxT("/barnaul_dataloader/data/csv_fld_name")), sInputTabPathFieldName);
+        
         GetPosition(&x, &y);
         GetClientSize(&w, &h);
         if (IsMaximized())
@@ -746,32 +772,13 @@ void wxGISBarnaulDataLoaderDlg::SerializeFramePos(bool bSave)
             oConfig.Write(enumGISHKCU, sAppName + wxString(wxT("/barnaul_dataloader/frame/ypos")), y);
         }
         oConfig.Write(enumGISHKCU, sAppName + wxString(wxT("/barnaul_dataloader/first_run")), false);
-		
-		// save parameters
-		wxGISGPValueDomain* pDomain = m_Parameters[2]->GetDomain();		
-		wxString sInputFCPathFieldName;
-		if(NULL != pDomain)
-		{
-			int nPos = m_Parameters[2]->GetSelDomainValue();		
-			sInputFCPathFieldName = pDomain->GetName(nPos);
-		}
-		
-		pDomain = m_Parameters[3]->GetDomain();		
-		wxString sInputTabPathFieldName;
-		if(NULL != pDomain)
-		{
-			int nPos = m_Parameters[3]->GetSelDomainValue();	
-			sInputTabPathFieldName = pDomain->GetName(nPos);
-		}
-		
-		OGRwkbGeometryType eGeomType = (OGRwkbGeometryType)(m_Parameters[4]->GetValue().GetLong() + 3);
-	
-		oConfig.Write(enumGISHKCU, sAppName + wxString(wxT("/barnaul_dataloader/data/geom_type")),  (int)eGeomType);
-		oConfig.Write(enumGISHKCU, sAppName + wxString(wxT("/barnaul_dataloader/data/mi_fld_name")),  sInputFCPathFieldName);
-		oConfig.Write(enumGISHKCU, sAppName + wxString(wxT("/barnaul_dataloader/data/csv_fld_name")),  sInputTabPathFieldName);
     }
     else
     {
+        m_dDefaultGeomType = (OGRwkbGeometryType)oConfig.ReadInt(enumGISHKCU, sAppName + wxString(wxT("/barnaul_dataloader/data/geom_type")), (int)wkbPolygon);
+        m_sMiFieldName = oConfig.Read(enumGISHKCU, sAppName + wxString(wxT("/barnaul_dataloader/data/mi_fld_name")), wxEmptyString);
+        m_sCSVFieldName = oConfig.Read(enumGISHKCU, sAppName + wxString(wxT("/barnaul_dataloader/data/csv_fld_name")), wxEmptyString);
+
         if (oConfig.ReadBool(enumGISHKCU, sAppName + wxString(wxT("/barnaul_dataloader/first_run")), true))
             return;
 
@@ -779,10 +786,10 @@ void wxGISBarnaulDataLoaderDlg::SerializeFramePos(bool bSave)
         bool bMaxi = oConfig.ReadBool(enumGISHKCU, sAppName + wxString(wxT("/barnaul_dataloader/frame/maxi")), false);
         if (!bMaxi)
         {
-            int x = oConfig.ReadInt(enumGISHKCU, sAppName + wxString(wxT("/barnaul_dataloader/frame/xpos")), x);
-            int y = oConfig.ReadInt(enumGISHKCU, sAppName + wxString(wxT("/barnaul_dataloader/frame/ypos")), y);
-            int w = oConfig.ReadInt(enumGISHKCU, sAppName + wxString(wxT("/barnaul_dataloader/frame/width")), w);
-            int h = oConfig.ReadInt(enumGISHKCU, sAppName + wxString(wxT("/barnaul_dataloader/frame/height")), h);
+            x = oConfig.ReadInt(enumGISHKCU, sAppName + wxString(wxT("/barnaul_dataloader/frame/xpos")), x);
+            y = oConfig.ReadInt(enumGISHKCU, sAppName + wxString(wxT("/barnaul_dataloader/frame/ypos")), y);
+            w = oConfig.ReadInt(enumGISHKCU, sAppName + wxString(wxT("/barnaul_dataloader/frame/width")), w);
+            h = oConfig.ReadInt(enumGISHKCU, sAppName + wxString(wxT("/barnaul_dataloader/frame/height")), h);
             Move(x, y);
             SetClientSize(w, h);
         }
@@ -790,10 +797,6 @@ void wxGISBarnaulDataLoaderDlg::SerializeFramePos(bool bSave)
         {
             Maximize();
         }
-		
-		m_dDefaultGeomType = (OGRwkbGeometryType)oConfig.ReadInt(enumGISHKCU, sAppName + wxString(wxT("/barnaul_dataloader/data/geom_type")),  (int)wkbPolygon);
-		m_sMiFieldName = oConfig.Read(enumGISHKCU, sAppName + wxString(wxT("/barnaul_dataloader/data/mi_fld_name")),  wxEmptyString);
-		m_sCSVFieldName = oConfig.Read(enumGISHKCU, sAppName + wxString(wxT("/barnaul_dataloader/data/csv_fld_name")),  wxEmptyString);
     }
 }
 
