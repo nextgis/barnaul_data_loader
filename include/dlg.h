@@ -65,6 +65,8 @@ protected:
     wxGISGPParameterArray m_Parameters;
     CPLString m_soOutPath;
     wxGxNGWResourceGroupUI *m_pResourceGroup;
+	wxString m_sMiFieldName, m_sCSVFieldName;
+	OGRwkbGeometryType m_dDefaultGeomType;
 private:
 	DECLARE_EVENT_TABLE()	
 };

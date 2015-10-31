@@ -194,6 +194,7 @@ void wxGISBarnaulDataLoaderDlg::OnOKUI(wxUpdateUIEvent & event)
 
 void wxGISBarnaulDataLoaderDlg::OnParamChanged(wxGISGPParamEvent& event)
 {
+
     if(event.GetId() == 0)
     {
         if(!m_Parameters[6]->GetAltered())
@@ -213,7 +214,8 @@ void wxGISBarnaulDataLoaderDlg::OnParamChanged(wxGISGPParamEvent& event)
             {
                 wxGISFeatureDataset *pFeatureDataset = wxDynamicCast(pGxDSet->GetDataset(true), wxGISFeatureDataset);
                 if(pFeatureDataset)
-                {                  
+                {     
+					wxGISPointerHolder holder(pFeatureDataset);             
                     if (!pFeatureDataset->IsOpened())
 		            {
                         if (!pFeatureDataset->Open(0, false, true, true))
@@ -267,10 +269,49 @@ void wxGISBarnaulDataLoaderDlg::OnParamChanged(wxGISGPParamEvent& event)
             }
         }       
     }
-    
+
+	    
     for(size_t i = 0; i < m_paControls.size(); ++i)
         if(m_paControls[i])
             m_paControls[i]->OnParamChanged(event);
+			
+	if(event.GetId() ==  0)
+	{
+		wxLogError("%d - %s - %s", m_dDefaultGeomType, m_sMiFieldName.c_str(), m_sCSVFieldName.c_str());
+		//if(!m_Parameters[4]->GetAltered())
+		{
+			wxGISGPValueDomain *pDomain = m_Parameters[4]->GetDomain();
+			if(NULL != pDomain)
+			{
+				int nPos = pDomain->GetPosByValue((long)m_dDefaultGeomType);
+				wxLogError("pos - %d size = %d", nPos, pDomain->GetCount());
+				m_Parameters[4]->SetSelDomainValue(nPos);
+			}
+		}
+		
+		//if(!m_Parameters[2]->GetAltered())
+		{
+			wxGISGPValueDomain *pDomain = m_Parameters[2]->GetDomain();
+			if(NULL != pDomain)
+			{
+				int nPos = pDomain->GetPosByName(m_sMiFieldName);
+				m_Parameters[2]->SetSelDomainValue(nPos);
+			}
+		}		
+	}		
+	
+	if(event.GetId() ==  1)
+	{
+		//if(!m_Parameters[3]->GetAltered())
+		{
+			wxGISGPValueDomain *pDomain = m_Parameters[3]->GetDomain();
+			if(NULL != pDomain)
+			{
+				int nPos = pDomain->GetPosByName(m_sCSVFieldName);
+				m_Parameters[3]->SetSelDomainValue(nPos);
+			}
+		}
+	}
 }
 
 
@@ -504,8 +545,7 @@ void wxGISBarnaulDataLoaderDlg::OnOk(wxCommandEvent & event)
             {
                 pNewGeom = Geom.Copy();
             }
-
-            
+			            
             wxGISFeature newFeature = pGISFeatureDataset->CreateFeature();
             
             // set geometry
@@ -560,8 +600,7 @@ void wxGISBarnaulDataLoaderDlg::OnOk(wxCommandEvent & event)
 		
 		m_pResourceGroup->OnGetUpdates();
     }
-
-
+	
     if ( IsModal() )
     {
         EndModal(wxID_OK);
@@ -707,6 +746,29 @@ void wxGISBarnaulDataLoaderDlg::SerializeFramePos(bool bSave)
             oConfig.Write(enumGISHKCU, sAppName + wxString(wxT("/barnaul_dataloader/frame/ypos")), y);
         }
         oConfig.Write(enumGISHKCU, sAppName + wxString(wxT("/barnaul_dataloader/first_run")), false);
+		
+		// save parameters
+		wxGISGPValueDomain* pDomain = m_Parameters[2]->GetDomain();		
+		wxString sInputFCPathFieldName;
+		if(NULL != pDomain)
+		{
+			int nPos = m_Parameters[2]->GetSelDomainValue();		
+			sInputFCPathFieldName = pDomain->GetName(nPos);
+		}
+		
+		pDomain = m_Parameters[3]->GetDomain();		
+		wxString sInputTabPathFieldName;
+		if(NULL != pDomain)
+		{
+			int nPos = m_Parameters[3]->GetSelDomainValue();	
+			sInputTabPathFieldName = pDomain->GetName(nPos);
+		}
+		
+		OGRwkbGeometryType eGeomType = (OGRwkbGeometryType)(m_Parameters[4]->GetValue().GetLong() + 3);
+	
+		oConfig.Write(enumGISHKCU, sAppName + wxString(wxT("/barnaul_dataloader/data/geom_type")),  (int)eGeomType);
+		oConfig.Write(enumGISHKCU, sAppName + wxString(wxT("/barnaul_dataloader/data/mi_fld_name")),  sInputFCPathFieldName);
+		oConfig.Write(enumGISHKCU, sAppName + wxString(wxT("/barnaul_dataloader/data/csv_fld_name")),  sInputTabPathFieldName);
     }
     else
     {
@@ -728,6 +790,10 @@ void wxGISBarnaulDataLoaderDlg::SerializeFramePos(bool bSave)
         {
             Maximize();
         }
+		
+		m_dDefaultGeomType = (OGRwkbGeometryType)oConfig.ReadInt(enumGISHKCU, sAppName + wxString(wxT("/barnaul_dataloader/data/geom_type")),  (int)wkbPolygon);
+		m_sMiFieldName = oConfig.Read(enumGISHKCU, sAppName + wxString(wxT("/barnaul_dataloader/data/mi_fld_name")),  wxEmptyString);
+		m_sCSVFieldName = oConfig.Read(enumGISHKCU, sAppName + wxString(wxT("/barnaul_dataloader/data/csv_fld_name")),  wxEmptyString);
     }
 }
 
