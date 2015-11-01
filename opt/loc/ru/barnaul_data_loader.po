@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: barnaul data loader\n"
-"POT-Creation-Date: 2015-10-30 00:58+0300\n"
-"PO-Revision-Date: 2015-10-31 20:07+0300\n"
+"POT-Creation-Date: 2015-11-01 18:12+0300\n"
+"PO-Revision-Date: 2015-11-01 18:12+0300\n"
 "Last-Translator: Dmitry Baryshnikov <polimax@mail.ru>\n"
 "Language-Team: NextGIS <info@nextgis.ru>\n"
 "Language: ru_RU\n"
@@ -62,34 +62,34 @@ msgstr "Введите имя выходного слоя"
 msgid "Cancel"
 msgstr "Отмена"
 
-#: ../../../src/dlg.cpp:301
+#: ../../../src/dlg.cpp:344
 msgid "Form join feature dataset"
 msgstr "Создание объединенного слоя"
 
-#: ../../../src/dlg.cpp:301
+#: ../../../src/dlg.cpp:344
 msgid "Begin operation..."
 msgstr "Начать операцию..."
 
-#: ../../../src/dlg.cpp:306 ../../../src/dlg.cpp:314
+#: ../../../src/dlg.cpp:349 ../../../src/dlg.cpp:357
 #, c-format
 msgid "Failed to get feature dataset %s"
 msgstr "Ошибка получения класса пространственных объектов %s"
 
-#: ../../../src/dlg.cpp:307 ../../../src/dlg.cpp:315 ../../../src/dlg.cpp:347
-#: ../../../src/dlg.cpp:355
+#: ../../../src/dlg.cpp:350 ../../../src/dlg.cpp:358 ../../../src/dlg.cpp:390
+#: ../../../src/dlg.cpp:398
 msgid "Error"
 msgstr "Ошибка"
 
-#: ../../../src/dlg.cpp:346 ../../../src/dlg.cpp:354
+#: ../../../src/dlg.cpp:389 ../../../src/dlg.cpp:397
 #, c-format
 msgid "Failed to get table %s"
 msgstr "Не удалось получить таблицу '%s'"
 
-#: ../../../src/dlg.cpp:443
+#: ../../../src/dlg.cpp:486
 #, c-format
 msgid "Force geometry field to %s"
 msgstr "Преобразование типа геометрии в %s"
 
-#: ../../../src/dlg.cpp:554
+#: ../../../src/dlg.cpp:596
 msgid "CreateVectorLayer failed"
 msgstr "Ошибка создания выходного слоя"
