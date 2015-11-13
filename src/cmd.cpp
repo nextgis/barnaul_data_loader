@@ -60,7 +60,11 @@ wxString wxGISBarnaulDataloaderCmd::GetCaption(void)
 	switch(m_subtype)
 	{
 		case 0:	
-			return wxString(_("Import spatial data"));
+            return wxString(_("Import spatial data")); 
+        case 1:
+            return wxString(_("Update spatial data"));        
+        case 2:
+            return wxString(_("Simple loader"));
 	    default:
 		    return wxEmptyString;
 	}
@@ -71,7 +75,9 @@ wxString wxGISBarnaulDataloaderCmd::GetCategory(void)
 	switch(m_subtype)
 	{
 		case 0:	
-           return wxString(_("Geoprocessing"));
+        case 1:
+        case 2:
+           return wxString(_("Barnaul tools"));
 		default:
 			return NO_CATEGORY;
 	}
@@ -98,7 +104,24 @@ bool wxGISBarnaulDataloaderCmd::GetEnabled(void)
             }
 			return false;
 		}
-		
+        case 1:
+        {
+            if (pCat && pSel)
+            {
+                wxGxObject* pGxObject = pCat->GetRegisterObject(pSel->GetLastSelectedObjectId());
+                return pGxObject != NULL && pGxObject->IsKindOf(wxCLASSINFO(wxGxNGWLayer));
+            }
+            return false;
+        }
+        case 2:
+        {
+            if (pCat && pSel)
+            {
+                wxGxObject* pGxObject = pCat->GetRegisterObject(pSel->GetLastSelectedObjectId());
+                return pGxObject != NULL && (pGxObject->IsKindOf(wxCLASSINFO(wxGxNGWLayer)) || pGxObject->IsKindOf(wxCLASSINFO(wxGxNGWResourceGroup)));
+            }
+            return false;
+        }
 		default:
 			return false;
 	}
@@ -109,7 +132,9 @@ wxGISEnumCommandKind wxGISBarnaulDataloaderCmd::GetKind(void)
 	switch(m_subtype)
 	{
 		case 0:
-			return enumGISCommandNormal;
+        case 1:		
+        case 2:
+            return enumGISCommandNormal;
 		default:
 			return enumGISCommandNormal;
 	}
@@ -121,7 +146,11 @@ wxString wxGISBarnaulDataloaderCmd::GetMessage(void)
 	{
 		case 0:	
 			return wxString(_("Import spatial data to NGW"));		
-		default:
+        case 1:
+            return wxString(_("Update spatial data in NGW"));
+        case 2:
+            return wxString(_("Simple load/update spatial data in NGW"));
+        default:
 			return wxEmptyString;
 	}
 }
@@ -144,7 +173,10 @@ void wxGISBarnaulDataloaderCmd::OnClick(void)
 			    }
 			}
 			break;		
-		
+        case 1:
+        case 2:
+            wxMessageBox("Not implemented", "Error");
+            break;
 		default:
 			return;
 	}
@@ -161,7 +193,11 @@ wxString wxGISBarnaulDataloaderCmd::GetTooltip(void)
 	switch(m_subtype)
 	{
 		case 0:	
-			return wxString(_("Import spatial data to NGW"));		
+			return wxString(_("Import spatial data to NGW"));	
+        case 1:
+            return wxString(_("Update spatial data in NGW"));
+        case 2:
+            return wxString(_("Simple load/update spatial data in NGW"));
 		default:
 			return wxEmptyString;
 	}
@@ -169,7 +205,7 @@ wxString wxGISBarnaulDataloaderCmd::GetTooltip(void)
 
 unsigned char wxGISBarnaulDataloaderCmd::GetCount(void)
 {
-	return 1;
+	return 3;
 }
 
 
