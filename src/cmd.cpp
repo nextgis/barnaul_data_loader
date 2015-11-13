@@ -25,7 +25,9 @@
 
 #include "dlg.h"
 
-#include "../art/strat_16.xpm"
+#include "../art/arrow.xpm"
+#include "../art/arrow_join.xpm"
+#include "../art/arrow_circle.xpm"
 
 //-----------------------------------------------------------------------------
 // wxGISBarnaulDataloaderCmd
@@ -48,8 +50,16 @@ wxIcon wxGISBarnaulDataloaderCmd::GetBitmap(void)
 	{
 	    case 0:
 		    if(!m_IconLoadTask.IsOk())
-                m_IconLoadTask = wxIcon(strat_16_xpm);
+                m_IconLoadTask = wxIcon(arrow_join);
 		    return m_IconLoadTask;
+        case 1:
+            if (!m_IconReloadTask.IsOk())
+                m_IconReloadTask = wxIcon(arrow_circle);
+            return m_IconReloadTask;
+        case 2:
+            if (!m_IconSimpleLoadTask.IsOk())
+                m_IconSimpleLoadTask = wxIcon(arrow);
+            return m_IconSimpleLoadTask;
 		default:    
             return wxNullIcon;
     }
@@ -174,6 +184,16 @@ void wxGISBarnaulDataloaderCmd::OnClick(void)
 			}
 			break;		
         case 1:
+            {
+                  wxGxObject* pGxObject = pCat->GetRegisterObject(pSel->GetLastSelectedObjectId());
+                  wxGxNGWLayerUI* pLayer = wxDynamicCast(pGxObject, wxGxNGWLayerUI);
+                  if (NULL != pLayer)
+                  {
+                      wxGISBarnaulDataLoaderDlg dlg(pLayer, dynamic_cast<wxWindow*>(m_pApp));
+                      dlg.ShowModal();
+                  }
+            }
+            break;
         case 2:
             wxMessageBox("Not implemented", "Error");
             break;

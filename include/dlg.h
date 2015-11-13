@@ -35,6 +35,10 @@
 #include <wx/button.h>
 #include <wx/dialog.h>
 
+//---------------------------------------------------------------------------------------
+// wxGISBarnaulDataLoaderDlg
+//---------------------------------------------------------------------------------------
+
 class WXDLLIMPEXP_GIS_BDL wxGISBarnaulDataLoaderDlg : public wxDialog 
 {
 public:
@@ -44,7 +48,14 @@ public:
 	                           const wxPoint& pos = wxDefaultPosition, 
 	                           const wxSize& size = wxDefaultSize, 
 	                           long style = wxCAPTION|wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER|wxCLIP_CHILDREN );
-	~wxGISBarnaulDataLoaderDlg();
+    wxGISBarnaulDataLoaderDlg( wxGxNGWLayerUI *pLayer,
+        wxWindow* parent, wxWindowID id = wxID_ANY,
+        const wxString& title = _("Reload spatial data"),
+        const wxPoint& pos = wxDefaultPosition,
+        const wxSize& size = wxDefaultSize,
+        long style = wxCAPTION | wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER | wxCLIP_CHILDREN );
+    
+    ~wxGISBarnaulDataLoaderDlg();
     bool IsValid(void);
     //events
 	void OnOKUI(wxUpdateUIEvent & event);
@@ -58,6 +69,8 @@ protected:
     void DeleteExistLayer(const wxString& sLayerName);
     OGRwkbGeometryType GetGeometryType(wxGISFeatureDataset * const pDSet);
     void SetField(wxGISFeature& feature, int newIndex, const wxGISFeature &row, int index, OGRFieldType eType);
+    void Load();
+    void Reload();
 
 protected:
 	wxStdDialogButtonSizer* m_sdbSizer;
@@ -65,9 +78,11 @@ protected:
     wxVector<wxGISDTBase*> m_paControls;
     wxGISGPParameterArray m_Parameters;
     CPLString m_soOutPath;
-    wxGxNGWResourceGroupUI *m_pResourceGroup;
+    wxGxNGWResourceGroupUI *m_pResourceGroup; 
+    wxGxNGWLayerUI *m_pLayer;
 	wxString m_sMiFieldName, m_sCSVFieldName;
 	OGRwkbGeometryType m_dDefaultGeomType;
+    bool m_bUpdateMode;
 private:
 	DECLARE_EVENT_TABLE()	
 };
