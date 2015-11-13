@@ -442,12 +442,17 @@ void wxGISBarnaulDataLoaderDlg::OnOk(wxCommandEvent & event)
             OGRFieldDefn *pField = poFields->GetFieldDefn(i);
             OGRFieldDefn oFieldDefn(pField);
 			wxString sFieldName(pField->GetNameRef(), wxCSConv(pFeatureDataset->GetEncoding()));
-            oFieldDefn.SetName(Transliterate(sFieldName));
+            wxString sTranslited = Transliterate(sFieldName);
+            if (!sTranslited.IsSameAs(sFieldName))
+                ProgressDlg.PutMessage(wxString::Format(_("The field %s renamed to %s"), sFieldName.c_str(), sTranslited.c_str()), wxNOT_FOUND, enumGISMessageWarning);
+            oFieldDefn.SetName(sTranslited);
             if(saFieldNames.Index(wxString::FromUTF8(oFieldDefn.GetNameRef())) != wxNOT_FOUND)
             {
                 wxString sAppend = wxString::Format(wxT("%.2d"), i + 1);
                 wxString sNewFieldName = wxString::FromUTF8(oFieldDefn.GetNameRef()) + sAppend;
                 oFieldDefn.SetName(sNewFieldName.ToUTF8());
+
+                ProgressDlg.PutMessage(wxString::Format(_("The field %s renamed to %s"), sFieldName.c_str(), sNewFieldName.c_str()), wxNOT_FOUND, enumGISMessageWarning);
             }            
                 
             poOutLayer->CreateField(&oFieldDefn); 
