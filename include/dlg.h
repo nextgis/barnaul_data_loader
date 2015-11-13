@@ -52,6 +52,7 @@ public:
     void OnParamChanged(wxGISGPParamEvent& event);
 protected:
     void SerializeFramePos(bool bSave);
+    void SerializeValues(bool bSave);
     wxGISFeature FindRow(const wxString &sFieldName, const wxString &sFieldValue, 
                          wxGISTable * const pTable);
     void DeleteExistLayer(const wxString& sLayerName);
