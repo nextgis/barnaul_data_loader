@@ -36,25 +36,16 @@
 // wxGISBarnaulDataLoaderDlg
 //---------------------------------------------------------------------------
 
-BEGIN_EVENT_TABLE(wxGISBarnaulDataLoaderDlg, wxDialog)
-	EVT_UPDATE_UI(wxID_OK, wxGISBarnaulDataLoaderDlg::OnOKUI)
-	EVT_BUTTON( wxID_OK, wxGISBarnaulDataLoaderDlg::OnOk )
-	EVT_GPPARAM_CHANGED( wxGISBarnaulDataLoaderDlg::OnParamChanged )
-END_EVENT_TABLE()
-
-wxGISBarnaulDataLoaderDlg::wxGISBarnaulDataLoaderDlg( wxGxNGWResourceGroupUI *pResourceGroup, wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style ) : wxDialog( parent, id, title, pos, size, style )
+wxGISBarnaulDataLoaderDlg::wxGISBarnaulDataLoaderDlg(wxGxNGWResourceGroupUI *pResourceGroup, wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style) : wxGISToolGenericDlg(parent, id, title, pos, size, style)
 {
     m_pResourceGroup = pResourceGroup;
     SetIcon(wxIcon(arrow_join));
     m_bUpdateMode = false;
 
 	//this->SetSizeHints( wxSize( 400, 300 ));
-	
-	wxBoxSizer* bSizer;
-	bSizer = new wxBoxSizer( wxVERTICAL );
 
     //create and fill parameters array
-    
+
     // select input feature class
     wxGISGPParameter *pParamSrcFClass = new wxGISGPParameter(wxT("src_fclass"), _("Set input feature class"), enumGISGPParameterTypeRequired, enumGISGPParamDTPath);
     pParamSrcFClass->SetDirection(enumGISGPParameterDirectionInput);
@@ -121,69 +112,18 @@ wxGISBarnaulDataLoaderDlg::wxGISBarnaulDataLoaderDlg( wxGxNGWResourceGroupUI *pR
     m_Parameters.Add(pOutputName);
     pOutputName->Advise(this);
     
-    //create gpcontrols
-    wxGISDTPath* pInPath1 = new wxGISDTPath(m_Parameters, 0, this);
-    bSizer->Add( pInPath1, 0, wxEXPAND, 5 );
-    m_paControls.push_back(pInPath1);
-
-    wxGISDTPath* pInPath2 = new wxGISDTPath(m_Parameters, 1, this);
-    bSizer->Add( pInPath2, 0, wxEXPAND, 5 );
-    m_paControls.push_back(pInPath2);
-    
-    wxGISDTFieldChoice* pInFldChoice1 = new wxGISDTFieldChoice(m_Parameters, 2, this);
-    bSizer->Add( pInFldChoice1, 0, wxEXPAND, 5 );
-    m_paControls.push_back(pInFldChoice1);
-    
-    wxGISDTFieldChoice* pInFldChoice2 = new wxGISDTFieldChoice(m_Parameters, 3, this);
-    bSizer->Add( pInFldChoice2, 0, wxEXPAND, 5 );
-    m_paControls.push_back(pInFldChoice2);
-    
-    wxGISDTChoice *pGeomTypeChoice = new wxGISDTChoice(m_Parameters, 4, this);    
-    bSizer->Add( pGeomTypeChoice, 0, wxEXPAND, 5 );
-    m_paControls.push_back(pGeomTypeChoice);
-    
-    wxGISDTBool *pGeomFilterCheck = new wxGISDTBool(m_Parameters, 5, this);    
-    bSizer->Add( pGeomFilterCheck, 0, wxEXPAND, 5 );
-    m_paControls.push_back(pGeomFilterCheck); 
-   
-    wxGISDTText* pInText = new wxGISDTText(m_Parameters, 6, this);    
-    bSizer->Add( pInText, 0, wxEXPAND, 5 );
-    m_paControls.push_back(pInText);
-    
-    //
-    wxStaticLine *pStatLine = new wxStaticLine(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL);
-	bSizer->Add( pStatLine, 0, wxEXPAND|wxALL, 5 );
-
-	m_sdbSizer = new wxStdDialogButtonSizer();
-	wxButton *sdbSizerOK = new wxButton( this, wxID_OK );
-	m_sdbSizer->AddButton( sdbSizerOK );
-	sdbSizerOK->Disable();
-	wxButton *sdbSizerCancel = new wxButton( this, wxID_CANCEL, _("Cancel") );
-	m_sdbSizer->AddButton( sdbSizerCancel );
-	m_sdbSizer->Realize();
-	bSizer->Add( m_sdbSizer, 0, wxALIGN_CENTER_HORIZONTAL|wxEXPAND|wxALL, 5 );
-	
-	this->SetSizerAndFit( bSizer );
-	this->Layout();
-	
-	this->Centre( wxBOTH );
-
-    //m_pDS = NULL;
+    CreateControls();
     
     SerializeFramePos(false);
+    SerializeValues(false);
 }
 
 
-wxGISBarnaulDataLoaderDlg::wxGISBarnaulDataLoaderDlg(wxGxNGWLayerUI *pLayer, wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style) : wxDialog(parent, id, title, pos, size, style)
+wxGISBarnaulDataLoaderDlg::wxGISBarnaulDataLoaderDlg(wxGxNGWLayerUI *pLayer, wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style) : wxGISToolGenericDlg(parent, id, title, pos, size, style)
 {
     m_pLayer = pLayer;
     SetIcon(wxIcon(arrow_circle));
     m_bUpdateMode = true;
-
-    //this->SetSizeHints( wxSize( 400, 300 ));
-
-    wxBoxSizer* bSizer;
-    bSizer = new wxBoxSizer(wxVERTICAL);
 
     //create and fill parameters array
 
@@ -235,69 +175,27 @@ wxGISBarnaulDataLoaderDlg::wxGISBarnaulDataLoaderDlg(wxGxNGWLayerUI *pLayer, wxW
     m_Parameters.Add(pParamFilter);
     pParamFilter->Advise(this);
 
-    //create gpcontrols
-    wxGISDTPath* pInPath1 = new wxGISDTPath(m_Parameters, 0, this);
-    bSizer->Add(pInPath1, 0, wxEXPAND, 5);
-    m_paControls.push_back(pInPath1);
+    // select geometry type
+    wxGISGPParameter *pParamAppendOrReload = new wxGISGPParameter(wxT("append_reload"), _("Select append or reload"), enumGISGPParameterTypeRequired, enumGISGPParamDTIntegerChoice);
+    pParamAppendOrReload->SetDirection(enumGISGPParameterDirectionInput);
 
-    wxGISDTPath* pInPath2 = new wxGISDTPath(m_Parameters, 1, this);
-    bSizer->Add(pInPath2, 0, wxEXPAND, 5);
-    m_paControls.push_back(pInPath2);
+    wxGISGPValueDomain* pDomain3 = new wxGISGPValueDomain();
+    pDomain3->AddValue(2, _("Reload"));
+    pDomain3->AddValue(1, _("Append"));
 
-    wxGISDTFieldChoice* pInFldChoice1 = new wxGISDTFieldChoice(m_Parameters, 2, this);
-    bSizer->Add(pInFldChoice1, 0, wxEXPAND, 5);
-    m_paControls.push_back(pInFldChoice1);
+    pParamAppendOrReload->SetDomain(pDomain3);
 
-    wxGISDTFieldChoice* pInFldChoice2 = new wxGISDTFieldChoice(m_Parameters, 3, this);
-    bSizer->Add(pInFldChoice2, 0, wxEXPAND, 5);
-    m_paControls.push_back(pInFldChoice2);
+    m_Parameters.Add(pParamAppendOrReload);
+    pParamAppendOrReload->Advise(this);
 
-    wxGISDTBool *pGeomFilterCheck = new wxGISDTBool(m_Parameters, 4, this);
-    bSizer->Add(pGeomFilterCheck, 0, wxEXPAND, 5);
-    m_paControls.push_back(pGeomFilterCheck);
-
-    //
-    wxStaticLine *pStatLine = new wxStaticLine(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL);
-    bSizer->Add(pStatLine, 0, wxEXPAND | wxALL, 5);
-
-    m_sdbSizer = new wxStdDialogButtonSizer();
-    wxButton *sdbSizerOK = new wxButton(this, wxID_OK);
-    m_sdbSizer->AddButton(sdbSizerOK);
-    sdbSizerOK->Disable();
-    wxButton *sdbSizerCancel = new wxButton(this, wxID_CANCEL, _("Cancel"));
-    m_sdbSizer->AddButton(sdbSizerCancel);
-    m_sdbSizer->Realize();
-    bSizer->Add(m_sdbSizer, 0, wxALIGN_CENTER_HORIZONTAL | wxEXPAND | wxALL, 5);
-
-    this->SetSizerAndFit(bSizer);
-    this->Layout();
-
-    this->Centre(wxBOTH);
-
-    //m_pDS = NULL;
+    CreateControls();
 
     SerializeFramePos(false);
+    SerializeValues(false);
 }
 
 wxGISBarnaulDataLoaderDlg::~wxGISBarnaulDataLoaderDlg()
 {
-    SerializeFramePos(true);
-    
-    for(size_t i = 0; i < m_paControls.size(); ++i)
-    {
-        if(m_paControls[i])
-            m_paControls[i]->OnDelete();
-    }
-    //wsDELETE(m_pDS);
-    for(size_t i = 0; i < m_Parameters.size(); ++i)
-    {
-        wxDELETE(m_Parameters[i]);
-    }
-}
-
-void wxGISBarnaulDataLoaderDlg::OnOKUI(wxUpdateUIEvent & event)
-{
-    event.Enable(IsValid());
 }
 
 void wxGISBarnaulDataLoaderDlg::OnParamChanged(wxGISGPParamEvent& event)
@@ -426,18 +324,12 @@ void wxGISBarnaulDataLoaderDlg::OnParamChanged(wxGISGPParamEvent& event)
 	}
 }
 
-
-bool wxGISBarnaulDataLoaderDlg::IsValid(void)
+wxString wxGISBarnaulDataLoaderDlg::GetDialogSettingsName() const
 {
-    for(size_t i = 0; i < m_Parameters.GetCount(); ++i)
-        if(!m_Parameters[i]->IsValid())
-            return false;
-    //addition checks
-    //check fields of input file
-    return true;
+    return wxString(wxT("barnaul_dataloader"));
 }
 
-void wxGISBarnaulDataLoaderDlg::Load()
+wxGISFeatureDataset* wxGISBarnaulDataLoaderDlg::PrepareDataset(OGRwkbGeometryType eGeomType, bool bFilterIvalidGeometry, ITrackCancel* const pTrackCancel)
 {
     wxString sInputFCPath = m_Parameters[0]->GetValue().GetString();
     wxString sInputTabPath = m_Parameters[1]->GetValue().GetString();
@@ -445,28 +337,24 @@ void wxGISBarnaulDataLoaderDlg::Load()
     wxString sInputFCPathFieldName = m_Parameters[2]->GetDomain()->GetName(nPos);
     nPos = m_Parameters[3]->GetSelDomainValue();
     wxString sInputTabPathFieldName = m_Parameters[3]->GetDomain()->GetName(nPos);
-    OGRwkbGeometryType eGeomType = (OGRwkbGeometryType)(m_Parameters[4]->GetValue().GetLong() + 3);
-    bool bFilterIvalidGeometry = m_Parameters[5]->GetValue().GetBool();
-    wxString sOutputName = m_Parameters[6]->GetValue().GetString();
+
     wxGxCatalogBase* pCat = GetGxCatalog();
     if (pCat)
     {
-        wxGISProgressDlg ProgressDlg(_("Form join feature dataset"), _("Begin operation..."), 100, this);
-
         wxGxDataset* pGxDSet = dynamic_cast<wxGxDataset*>(pCat->FindGxObject(sInputFCPath));
         if (!pGxDSet)
         {
             wxString sErr = wxString::Format(_("Failed to get feature dataset %s"), sInputFCPath.c_str());
             wxMessageBox(sErr, _("Error"), wxOK | wxICON_ERROR);
-            return;
+            return NULL;
         }
 
-        wxGISFeatureDataset *pFeatureDataset = wxDynamicCast(pGxDSet->GetDataset(true, &ProgressDlg), wxGISFeatureDataset);
+        wxGISFeatureDataset *pFeatureDataset = wxDynamicCast(pGxDSet->GetDataset(true, pTrackCancel), wxGISFeatureDataset);
         if (!pFeatureDataset)
         {
             wxString sErr = wxString::Format(_("Failed to get feature dataset %s"), sInputFCPath.c_str());
             wxMessageBox(sErr, _("Error"), wxOK | wxICON_ERROR);
-            return;
+            return NULL;
         }
 
         if (!pFeatureDataset->IsOpened())
@@ -474,7 +362,7 @@ void wxGISBarnaulDataLoaderDlg::Load()
             if (!pFeatureDataset->Open(0, false, true, true))
             {
                 wsDELETE(pFeatureDataset);
-                return;
+                return NULL;
             }
         }
         pFeatureDataset->SetEncoding(wxFONTENCODING_CP1251);
@@ -482,7 +370,7 @@ void wxGISBarnaulDataLoaderDlg::Load()
         // for cached datasources 
         if (!pFeatureDataset->IsCached())
         {
-            pFeatureDataset->Cache(&ProgressDlg);
+            pFeatureDataset->Cache(pTrackCancel);
         }
 
 
@@ -498,15 +386,15 @@ void wxGISBarnaulDataLoaderDlg::Load()
         {
             wxString sErr = wxString::Format(_("Failed to get table %s"), sInputTabPath.c_str());
             wxMessageBox(sErr, _("Error"), wxOK | wxICON_ERROR);
-            return;
+            return NULL;
         }
 
-        wxGISTable *pTable = wxDynamicCast(pGxTable->GetDataset(true, &ProgressDlg), wxGISTable);
+        wxGISTable *pTable = wxDynamicCast(pGxTable->GetDataset(true, pTrackCancel), wxGISTable);
         if (!pTable)
         {
             wxString sErr = wxString::Format(_("Failed to get table %s"), sInputTabPath.c_str());
             wxMessageBox(sErr, _("Error"), wxOK | wxICON_ERROR);
-            return;
+            return NULL;
         }
 
         if (!pTable->IsOpened())
@@ -514,7 +402,7 @@ void wxGISBarnaulDataLoaderDlg::Load()
             if (!pTable->Open(0, false, true, true))
             {
                 wsDELETE(pTable);
-                return;
+                return NULL;
             }
         }
 
@@ -524,7 +412,7 @@ void wxGISBarnaulDataLoaderDlg::Load()
         // for cached datasources 
         if (!pTable->IsCached())
         {
-            pTable->Cache(&ProgressDlg);
+            pTable->Cache(pTrackCancel);
         }
 
         // create temp memory dataset ready to upload to the NGW
@@ -533,7 +421,7 @@ void wxGISBarnaulDataLoaderDlg::Load()
         if (poMEMDrv == NULL)
         {
             CPLError(CE_Failure, CPLE_AppDefined, "Cannot load 'Memory' driver");
-            return;
+            return NULL;
         }
 
         //OGRwkbGeometryType eGeomType = GetGeometryType(pFeatureDataset); 
@@ -552,7 +440,7 @@ void wxGISBarnaulDataLoaderDlg::Load()
             wxString sFieldName(pField->GetNameRef(), wxCSConv(pFeatureDataset->GetEncoding()));
             wxString sTranslited = Transliterate(sFieldName);
             if (!sTranslited.IsSameAs(sFieldName))
-                ProgressDlg.PutMessage(wxString::Format(_("The field %s renamed to %s"), sFieldName.c_str(), sTranslited.c_str()), wxNOT_FOUND, enumGISMessageWarning);
+                pTrackCancel->PutMessage(wxString::Format(_("The field %s renamed to %s"), sFieldName.c_str(), sTranslited.c_str()), wxNOT_FOUND, enumGISMessageWarning);
             oFieldDefn.SetName(sTranslited);
             if (saFieldNames.Index(wxString::FromUTF8(oFieldDefn.GetNameRef())) != wxNOT_FOUND)
             {
@@ -560,7 +448,7 @@ void wxGISBarnaulDataLoaderDlg::Load()
                 wxString sNewFieldName = wxString::FromUTF8(oFieldDefn.GetNameRef()) + sAppend;
                 oFieldDefn.SetName(sNewFieldName.ToUTF8());
 
-                ProgressDlg.PutMessage(wxString::Format(_("The field %s renamed to %s"), sFieldName.c_str(), sNewFieldName.c_str()), wxNOT_FOUND, enumGISMessageWarning);
+                pTrackCancel->PutMessage(wxString::Format(_("The field %s renamed to %s"), sFieldName.c_str(), sNewFieldName.c_str()), wxNOT_FOUND, enumGISMessageWarning);
             }
 
             poOutLayer->CreateField(&oFieldDefn);
@@ -594,13 +482,16 @@ void wxGISBarnaulDataLoaderDlg::Load()
 
         wxGISFeatureDataset* pGISFeatureDataset = new wxGISFeatureDataset("", enumVecMem, poOutLayer, poOutDS);
         pGISFeatureDataset->SetEncoding(wxFONTENCODING_UTF8);
-        wxGISPointerHolder holder(pGISFeatureDataset);
 
         int nCounter(0);
-        ProgressDlg.SetRange(pFeatureDataset->GetFeatureCount(true));
-        ProgressDlg.PutMessage(wxString::Format(_("Force geometry field to %s"), OGRGeometryTypeToName(eGeomType)), wxNOT_FOUND, enumGISMessageWarning);
+        pTrackCancel->PutMessage(wxString::Format(_("Force geometry field to %s"), OGRGeometryTypeToName(eGeomType)), wxNOT_FOUND, enumGISMessageWarning);
 
-        ProgressDlg.ShowProgress(true);
+        IProgressor *pProgress = pTrackCancel->GetProgressor();
+        if (NULL != pProgress)
+        {
+            pProgress->SetRange(pFeatureDataset->GetFeatureCount(true));
+            pProgress->ShowProgress(true);
+        }
 
         OGRFeatureDefn* pDefn = pGISFeatureDataset->GetDefinition();
 
@@ -608,12 +499,16 @@ void wxGISBarnaulDataLoaderDlg::Load()
         pFeatureDataset->Reset();
         while ((Feature = pFeatureDataset->Next()).IsOk())
         {
-            ProgressDlg.SetValue(nCounter++);
-            if (!ProgressDlg.Continue())
+            if (NULL != pProgress)
             {
-                return;
+                pProgress->SetValue(nCounter++);
             }
-
+            
+            if (!pTrackCancel->Continue())
+            {
+                return NULL;
+            }
+            
             //join and fill values to new feature
 
 
@@ -697,9 +592,29 @@ void wxGISBarnaulDataLoaderDlg::Load()
             {
                 const char* err = CPLGetLastErrorMsg();
                 wxString sErr(err, wxConvUTF8);
-                ProgressDlg.PutMessage(sErr, wxNOT_FOUND, enumGISMessageError);
+                pTrackCancel->PutMessage(sErr, wxNOT_FOUND, enumGISMessageError);
             }
         }
+
+        return pGISFeatureDataset;
+    }
+
+    return NULL;
+}
+
+void wxGISBarnaulDataLoaderDlg::Load()
+{
+    OGRwkbGeometryType eGeomType = (OGRwkbGeometryType)(m_Parameters[4]->GetValue().GetLong() + 3);
+    bool bFilterIvalidGeometry = m_Parameters[5]->GetValue().GetBool();
+    wxString sOutputName = m_Parameters[6]->GetValue().GetString();
+    wxGISProgressDlg ProgressDlg(_("Form join feature dataset"), _("Begin operation..."), 100, this);
+
+    wxGISFeatureDataset* pGISFeatureDataset = PrepareDataset(eGeomType, bFilterIvalidGeometry, &ProgressDlg);
+
+    if (NULL != pGISFeatureDataset)
+    {
+
+        wxGISPointerHolder holder(pGISFeatureDataset);
 
         // delete if exist layer with same name on server
         DeleteExistLayer(sOutputName);
@@ -731,6 +646,45 @@ void wxGISBarnaulDataLoaderDlg::Load()
 
 void wxGISBarnaulDataLoaderDlg::Reload()
 {
+    wxGISNGWFeatureDataset* pFeatureDataset = wxDynamicCast(m_pLayer->GetDataset(false), wxGISNGWFeatureDataset);
+    if (NULL == pFeatureDataset)
+    {
+        wxString sErr(_("Failed to get dataset"));
+        wxMessageBox(sErr, _("Error"), wxOK | wxICON_ERROR);
+        return;
+    }
+
+    OGRwkbGeometryType eGeomType = pFeatureDataset->GetGeometryType();
+    bool bFilterIvalidGeometry = m_Parameters[4]->GetValue().GetBool();
+    bool bReload = m_Parameters[5]->GetValue().GetInteger() == 2;
+    wxGISProgressDlg ProgressDlg(_("Form join feature dataset"), _("Begin operation..."), 100, this);
+    wxGISFeatureDataset* pGISFeatureDataset = PrepareDataset(eGeomType, bFilterIvalidGeometry, &ProgressDlg);
+
+    if (NULL != pGISFeatureDataset)
+    {
+        wxGISPointerHolder holder(pGISFeatureDataset);
+        if (bReload)
+        {
+            pFeatureDataset->DeleteAll();
+        }
+
+        // append
+        wxGISFeature feature;
+        while ((feature = pGISFeatureDataset->Next()).IsOk())
+        {
+            pFeatureDataset->StoreFeature(feature);
+        }
+    }
+
+    if (IsModal())
+    {
+        EndModal(wxID_OK);
+    }
+    else
+    {
+        SetReturnCode(wxID_OK);
+        this->Show(false);
+    }
 }
 
 void wxGISBarnaulDataLoaderDlg::OnOk(wxCommandEvent & event)
@@ -855,56 +809,6 @@ wxGISFeature wxGISBarnaulDataLoaderDlg::FindRow(const wxString &sFieldName,
     }	
     
     return Feature;
-}
-
-void wxGISBarnaulDataLoaderDlg::SerializeFramePos(bool bSave)
-{
-    wxGISAppConfig oConfig = GetConfig();
-    if (!oConfig.IsOk())
-        return;
-		
-	wxString sAppName = GetApplication()->GetAppName();	
-	int x=0, y=0, w=400, h=300;    
-            
-    if (bSave)
-    {
-        GetPosition(&x, &y);
-        GetClientSize(&w, &h);
-        if (IsMaximized())
-            oConfig.Write(enumGISHKCU, sAppName + wxString(wxT("/barnaul_dataloader/frame/maxi")), true);
-        else
-        {
-            oConfig.Write(enumGISHKCU, sAppName + wxString(wxT("/barnaul_dataloader/frame/maxi")), false);
-            oConfig.Write(enumGISHKCU, sAppName + wxString(wxT("/barnaul_dataloader/frame/width")), w);
-            oConfig.Write(enumGISHKCU, sAppName + wxString(wxT("/barnaul_dataloader/frame/height")), h);
-            oConfig.Write(enumGISHKCU, sAppName + wxString(wxT("/barnaul_dataloader/frame/xpos")), x);
-            oConfig.Write(enumGISHKCU, sAppName + wxString(wxT("/barnaul_dataloader/frame/ypos")), y);
-        }
-        oConfig.Write(enumGISHKCU, sAppName + wxString(wxT("/barnaul_dataloader/first_run")), false);
-    }
-    else
-    {
-        if (oConfig.ReadBool(enumGISHKCU, sAppName + wxString(wxT("/barnaul_dataloader/first_run")), true))
-            return;
-
-        //load
-        bool bMaxi = oConfig.ReadBool(enumGISHKCU, sAppName + wxString(wxT("/barnaul_dataloader/frame/maxi")), false);
-        if (!bMaxi)
-        {
-            x = oConfig.ReadInt(enumGISHKCU, sAppName + wxString(wxT("/barnaul_dataloader/frame/xpos")), x);
-            y = oConfig.ReadInt(enumGISHKCU, sAppName + wxString(wxT("/barnaul_dataloader/frame/ypos")), y);
-            w = oConfig.ReadInt(enumGISHKCU, sAppName + wxString(wxT("/barnaul_dataloader/frame/width")), w);
-            h = oConfig.ReadInt(enumGISHKCU, sAppName + wxString(wxT("/barnaul_dataloader/frame/height")), h);
-            Move(x, y);
-            SetClientSize(w, h);
-        }
-        else
-        {
-            Maximize();
-        }
-
-        SerializeValues(bSave);
-    }
 }
 
 void wxGISBarnaulDataLoaderDlg::SerializeValues(bool bSave)

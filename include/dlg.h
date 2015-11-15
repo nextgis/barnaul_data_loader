@@ -20,6 +20,7 @@
 
 #include "exports.h"
 #include "wxgis/geoprocessingui/gpcontrols.h"
+#include "wxgis/geoprocessingui/gptooldlg.h"
 #include "wxgis/geoprocessing/gpparam.h"
 #include "wxgis/catalogui/gxngwconnui.h"
 
@@ -39,7 +40,7 @@
 // wxGISBarnaulDataLoaderDlg
 //---------------------------------------------------------------------------------------
 
-class WXDLLIMPEXP_GIS_BDL wxGISBarnaulDataLoaderDlg : public wxDialog 
+class WXDLLIMPEXP_GIS_BDL wxGISBarnaulDataLoaderDlg : public wxGISToolGenericDlg
 {
 public:
 	wxGISBarnaulDataLoaderDlg( wxGxNGWResourceGroupUI *pResourceGroup, 
@@ -56,13 +57,11 @@ public:
         long style = wxCAPTION | wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER | wxCLIP_CHILDREN );
     
     ~wxGISBarnaulDataLoaderDlg();
-    bool IsValid(void);
     //events
-	void OnOKUI(wxUpdateUIEvent & event);
 	void OnOk(wxCommandEvent & event);
     void OnParamChanged(wxGISGPParamEvent& event);
 protected:
-    void SerializeFramePos(bool bSave);
+    virtual wxString GetDialogSettingsName() const;
     void SerializeValues(bool bSave);
     wxGISFeature FindRow(const wxString &sFieldName, const wxString &sFieldValue, 
                          wxGISTable * const pTable);
@@ -71,19 +70,13 @@ protected:
     void SetField(wxGISFeature& feature, int newIndex, const wxGISFeature &row, int index, OGRFieldType eType);
     void Load();
     void Reload();
-
+    wxGISFeatureDataset* PrepareDataset(OGRwkbGeometryType eGeomType, bool bFilterIvalidGeometry, ITrackCancel* const pTrackCancel);
 protected:
-	wxStdDialogButtonSizer* m_sdbSizer;
-	wxButton* m_sdbSizerCancel;
-    wxVector<wxGISDTBase*> m_paControls;
-    wxGISGPParameterArray m_Parameters;
     CPLString m_soOutPath;
     wxGxNGWResourceGroupUI *m_pResourceGroup; 
     wxGxNGWLayerUI *m_pLayer;
 	wxString m_sMiFieldName, m_sCSVFieldName;
 	OGRwkbGeometryType m_dDefaultGeomType;
     bool m_bUpdateMode;
-private:
-	DECLARE_EVENT_TABLE()	
 };
 
