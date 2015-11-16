@@ -746,6 +746,8 @@ void wxGISBarnaulDataLoaderDlg::Reload()
         {
             pFeatureDataset->StoreFeature(feature);
         }
+
+        ShowMessageDialog(this, ProgressDlg.GetWarnings());
     }
 
     if (IsModal())
