@@ -56,10 +56,10 @@ public:
         const wxSize& size = wxDefaultSize,
         long style = wxCAPTION | wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER | wxCLIP_CHILDREN );
     
-    ~wxGISBarnaulDataLoaderDlg();
+    virtual ~wxGISBarnaulDataLoaderDlg();
     //events
-	void OnOk(wxCommandEvent & event);
-    void OnParamChanged(wxGISGPParamEvent& event);
+    virtual void OnOk(wxCommandEvent & event);
+    virtual void OnParamChanged(wxGISGPParamEvent& event);
 protected:
     virtual wxString GetDialogSettingsName() const;
     void SerializeValues(bool bSave);
@@ -71,6 +71,7 @@ protected:
     void Load();
     void Reload();
     wxGISFeatureDataset* PrepareDataset(OGRwkbGeometryType eGeomType, bool bFilterIvalidGeometry, ITrackCancel* const pTrackCancel);
+    bool IsFieldNameForbidden(const wxString& sTestFieldName) const;
 protected:
     CPLString m_soOutPath;
     wxGxNGWResourceGroupUI *m_pResourceGroup; 

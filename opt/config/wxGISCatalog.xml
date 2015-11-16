@@ -424,7 +424,9 @@
         <Item type="cmd" cmd_name="wxGISDrawingTool" subtype="8" name="Очистить слой рисования"/>
       </toolbar>
       <toolbar size="16" LeftDockable="t" RightDockable="t" name="Custom.Barnaul" caption="Барнаул">
-        <Item type="cmd" cmd_name="wxGISBarnaulDataloaderCmd" subtype="0" name="Импорт слоя со слиянием в НГВ"/>
+        <Item type="cmd" cmd_name="wxGISBarnaulDataloaderCmd" subtype="0" name="Import spatial data"/>
+        <Item type="cmd" cmd_name="wxGISBarnaulDataloaderCmd" subtype="1" name="Update spatial data"/>
+        <Item type="cmd" cmd_name="wxGISBarnaulDataloaderCmd" subtype="2" name="Simple loader"/>
       </toolbar>
     </ToolBars>
   </Frame>
