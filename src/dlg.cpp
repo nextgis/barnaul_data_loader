@@ -71,7 +71,7 @@ wxGISBarnaulDataLoaderDlg::wxGISBarnaulDataLoaderDlg(wxGxNGWResourceGroupUI *pRe
     m_Parameters.Add(pParamSrcTable);
     pParamSrcTable->Advise(this);
     
-    // select filed from feature class to join
+    // select field from feature class to join
     wxGISGPParameter *pParamSrcFClassJoinField = new wxGISGPParameter(wxT("src_fclass_jf"), _("Set input feature class field to join"), enumGISGPParameterTypeRequired, enumGISGPParamDTFieldAnyChoice);
     pParamSrcFClassJoinField->SetDirection(enumGISGPParameterDirectionInput);
     pParamSrcFClassJoinField->AddDependency(wxT("src_fclass"));
@@ -79,7 +79,7 @@ wxGISBarnaulDataLoaderDlg::wxGISBarnaulDataLoaderDlg(wxGxNGWResourceGroupUI *pRe
     m_Parameters.Add(pParamSrcFClassJoinField);
     pParamSrcFClassJoinField->Advise(this);
         
-    // select filed from csv or xls to join
+    // select field from csv or xls to join
     wxGISGPParameter *pParamSrcTableJoinField = new wxGISGPParameter(wxT("src_table_jf"), _("Set input table field to join"), enumGISGPParameterTypeRequired, enumGISGPParamDTFieldAnyChoice);
     pParamSrcTableJoinField->SetDirection(enumGISGPParameterDirectionInput);
     pParamSrcTableJoinField->AddDependency(wxT("src_table"));
@@ -152,7 +152,7 @@ wxGISBarnaulDataLoaderDlg::wxGISBarnaulDataLoaderDlg(wxGxNGWLayerUI *pLayer, wxW
     m_Parameters.Add(pParamSrcTable);
     pParamSrcTable->Advise(this);
 
-    // select filed from feature class to join
+    // select field from feature class to join
     wxGISGPParameter *pParamSrcFClassJoinField = new wxGISGPParameter(wxT("src_fclass_jf"), _("Set input feature class field to join"), enumGISGPParameterTypeRequired, enumGISGPParamDTFieldAnyChoice);
     pParamSrcFClassJoinField->SetDirection(enumGISGPParameterDirectionInput);
     pParamSrcFClassJoinField->AddDependency(wxT("src_fclass"));
@@ -160,7 +160,7 @@ wxGISBarnaulDataLoaderDlg::wxGISBarnaulDataLoaderDlg(wxGxNGWLayerUI *pLayer, wxW
     m_Parameters.Add(pParamSrcFClassJoinField);
     pParamSrcFClassJoinField->Advise(this);
 
-    // select filed from csv or xls to join
+    // select field from csv or xls to join
     wxGISGPParameter *pParamSrcTableJoinField = new wxGISGPParameter(wxT("src_table_jf"), _("Set input table field to join"), enumGISGPParameterTypeRequired, enumGISGPParamDTFieldAnyChoice);
     pParamSrcTableJoinField->SetDirection(enumGISGPParameterDirectionInput);
     pParamSrcTableJoinField->AddDependency(wxT("src_table"));
@@ -761,7 +761,7 @@ void wxGISBarnaulDataLoaderDlg::Reload()
             if (feature.GetGeometry().Project(oWMSpatRef))
                 pFeatureDataset->StoreFeature(feature);
             else
-                ProgressDlg.PutMessage(wxString::Format(_("Filed to project feature # %ld"), feature.GetFID()), wxNOT_FOUND, enumGISMessageWarning);
+                ProgressDlg.PutMessage(wxString::Format(_("Failed to project feature # %ld"), feature.GetFID()), wxNOT_FOUND, enumGISMessageWarning);
         }
 
         ShowMessageDialog(this, ProgressDlg.GetWarnings());
@@ -1539,7 +1539,7 @@ void wxGISBarnaulSimpleDataLoaderDlg::Reload()
             if (feature.GetGeometry().Project(oWMSpatRef))
                 pFeatureDataset->StoreFeature(feature);
             else
-                ProgressDlg.PutMessage(wxString::Format(_("Filed to project feature # %ld"), feature.GetFID()), wxNOT_FOUND, enumGISMessageWarning);
+                ProgressDlg.PutMessage(wxString::Format(_("Failed to project feature # %ld"), feature.GetFID()), wxNOT_FOUND, enumGISMessageWarning);
         }
 
         ShowMessageDialog(this, ProgressDlg.GetWarnings());

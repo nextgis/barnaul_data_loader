@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: barnaul data loader\n"
-"POT-Creation-Date: 2015-11-16 05:03+0300\n"
-"PO-Revision-Date: 2015-11-16 05:05+0300\n"
+"POT-Creation-Date: 2015-11-19 18:28+0300\n"
+"PO-Revision-Date: 2015-11-19 18:28+0300\n"
 "Last-Translator: Dmitry Baryshnikov <polimax@mail.ru>\n"
 "Language-Team: NextGIS <info@nextgis.ru>\n"
 "Language: ru_RU\n"
@@ -18,7 +18,7 @@ msgstr ""
 "X-Poedit-SearchPath-0: ../../../include\n"
 "X-Poedit-SearchPath-1: ../../../src\n"
 
-#: ../../../src/cmd.cpp:73 ../../../include/dlg.h:48
+#: ../../../src/cmd.cpp:73 ../../../include/dlg.h:48 ../../../include/dlg.h:94
 msgid "Import spatial data"
 msgstr "Ввод пространственных данных"
 
@@ -34,109 +34,127 @@ msgstr "Простой загрузчик"
 msgid "Barnaul tools"
 msgstr "Инструменты для Барнаула"
 
-#: ../../../src/cmd.cpp:158 ../../../src/cmd.cpp:216
+#: ../../../src/cmd.cpp:158 ../../../src/cmd.cpp:232
 msgid "Import spatial data to NGW"
 msgstr "Ввод пространственных данных в НГВ"
 
-#: ../../../src/cmd.cpp:160 ../../../src/cmd.cpp:218
+#: ../../../src/cmd.cpp:160 ../../../src/cmd.cpp:234
 msgid "Update spatial data in NGW"
 msgstr "Обновление пространственных данных в НГВ"
 
-#: ../../../src/cmd.cpp:162 ../../../src/cmd.cpp:220
+#: ../../../src/cmd.cpp:162 ../../../src/cmd.cpp:236
 msgid "Simple load/update spatial data in NGW"
 msgstr "Простой ввод/замена пространственных данных в НГВ"
 
-#: ../../../src/dlg.cpp:50 ../../../src/dlg.cpp:131
+#: ../../../src/dlg.cpp:51 ../../../src/dlg.cpp:132 ../../../src/dlg.cpp:971
+#: ../../../src/dlg.cpp:1024
 msgid "Set input feature class"
 msgstr "Выберите класс пространственных объектов"
 
-#: ../../../src/dlg.cpp:62 ../../../src/dlg.cpp:143
+#: ../../../src/dlg.cpp:63 ../../../src/dlg.cpp:144
 msgid "Set input table"
 msgstr "Выберите таблицу"
 
-#: ../../../src/dlg.cpp:74 ../../../src/dlg.cpp:155
+#: ../../../src/dlg.cpp:75 ../../../src/dlg.cpp:156
 msgid "Set input feature class field to join"
 msgstr "Выберите поле класса пространственных объектов для связи"
 
-#: ../../../src/dlg.cpp:82 ../../../src/dlg.cpp:163
+#: ../../../src/dlg.cpp:83 ../../../src/dlg.cpp:164
 msgid "Set input table field to join"
 msgstr "Выберите поле таблицы для связи"
 
-#: ../../../src/dlg.cpp:90
+#: ../../../src/dlg.cpp:91 ../../../src/dlg.cpp:983
 msgid "Select output geometry type"
 msgstr "Укажите тип геометрии"
 
-#: ../../../src/dlg.cpp:101 ../../../src/dlg.cpp:171
+#: ../../../src/dlg.cpp:102 ../../../src/dlg.cpp:172 ../../../src/dlg.cpp:994
+#: ../../../src/dlg.cpp:1036
 msgid "Check to filter invalid geometry"
 msgstr "Не загружать невалидные геометрии"
 
-#: ../../../src/dlg.cpp:109
-msgid "Set outpul layer name"
+#: ../../../src/dlg.cpp:110 ../../../src/dlg.cpp:1002
+#, fuzzy
+msgid "Set output layer name"
 msgstr "Введите имя выходного слоя"
 
-#: ../../../src/dlg.cpp:179
+#: ../../../src/dlg.cpp:180 ../../../src/dlg.cpp:1044
 msgid "Select append or reload"
 msgstr "Выбор дописать или заменить"
 
-#: ../../../src/dlg.cpp:183
+#: ../../../src/dlg.cpp:184 ../../../src/dlg.cpp:1048
 msgid "Reload"
 msgstr "Заменить"
 
-#: ../../../src/dlg.cpp:184
+#: ../../../src/dlg.cpp:185 ../../../src/dlg.cpp:1049
 msgid "Append"
 msgstr "Дописать"
 
-#: ../../../src/dlg.cpp:371 ../../../src/dlg.cpp:379
+#: ../../../src/dlg.cpp:375 ../../../src/dlg.cpp:383 ../../../src/dlg.cpp:1220
+#: ../../../src/dlg.cpp:1228
 #, c-format
 msgid "Failed to get feature dataset %s"
 msgstr "Ошибка получения класса пространственных объектов %s"
 
-#: ../../../src/dlg.cpp:372 ../../../src/dlg.cpp:380 ../../../src/dlg.cpp:412
-#: ../../../src/dlg.cpp:420 ../../../src/dlg.cpp:695 ../../../src/dlg.cpp:738
+#: ../../../src/dlg.cpp:376 ../../../src/dlg.cpp:384 ../../../src/dlg.cpp:416
+#: ../../../src/dlg.cpp:424 ../../../src/dlg.cpp:699 ../../../src/dlg.cpp:742
+#: ../../../src/dlg.cpp:1221 ../../../src/dlg.cpp:1229
+#: ../../../src/dlg.cpp:1477 ../../../src/dlg.cpp:1520
 msgid "Error"
 msgstr "Ошибка"
 
-#: ../../../src/dlg.cpp:411 ../../../src/dlg.cpp:419
+#: ../../../src/dlg.cpp:415 ../../../src/dlg.cpp:423
 #, c-format
 msgid "Failed to get table %s"
 msgstr "Не удалось получить таблицу '%s'"
 
-#: ../../../src/dlg.cpp:476 ../../../src/dlg.cpp:489
+#: ../../../src/dlg.cpp:480 ../../../src/dlg.cpp:493 ../../../src/dlg.cpp:1290
+#: ../../../src/dlg.cpp:1303
 #, c-format
 msgid "The field %s renamed to %s"
 msgstr "Поле %s переименовано в %s"
 
-#: ../../../src/dlg.cpp:529
+#: ../../../src/dlg.cpp:533 ../../../src/dlg.cpp:1324
 #, c-format
 msgid "Force geometry field to %s"
 msgstr "Преобразование типа геометрии в %s"
 
-#: ../../../src/dlg.cpp:652 ../../../src/dlg.cpp:702
+#: ../../../src/dlg.cpp:656 ../../../src/dlg.cpp:706
 msgid "Form join feature dataset"
 msgstr "Создание объединенного слоя"
 
-#: ../../../src/dlg.cpp:652 ../../../src/dlg.cpp:702
+#: ../../../src/dlg.cpp:656 ../../../src/dlg.cpp:706 ../../../src/dlg.cpp:1434
+#: ../../../src/dlg.cpp:1484
 msgid "Begin operation..."
 msgstr "Начать операцию..."
 
-#: ../../../src/dlg.cpp:668
+#: ../../../src/dlg.cpp:672 ../../../src/dlg.cpp:1450
 msgid "CreateVectorLayer failed"
 msgstr "Ошибка создания выходного слоя"
 
-#: ../../../src/dlg.cpp:694
+#: ../../../src/dlg.cpp:698 ../../../src/dlg.cpp:1476
 msgid "Failed to get dataset"
 msgstr "Ошибка получения класса пространственных объектов"
 
-#: ../../../src/dlg.cpp:724
+#: ../../../src/dlg.cpp:728 ../../../src/dlg.cpp:1506
 #, c-format
 msgid "Remove non exist field %s"
 msgstr "Удаление отсутсвующего поля %s"
 
-#: ../../../src/dlg.cpp:737
+#: ../../../src/dlg.cpp:741 ../../../src/dlg.cpp:1519
 msgid "Failed to delete all features"
 msgstr "Ошибка удаления всех записей"
 
-#: ../../../include/dlg.h:54
+#: ../../../src/dlg.cpp:764 ../../../src/dlg.cpp:1542
+#, fuzzy, c-format
+msgid "Filed to project feature # %ld"
+msgstr "Ошибка получения класса пространственных объектов %s"
+
+#: ../../../src/dlg.cpp:1434 ../../../src/dlg.cpp:1484
+#, fuzzy
+msgid "Form output feature dataset"
+msgstr "Создание объединенного слоя"
+
+#: ../../../include/dlg.h:54 ../../../include/dlg.h:100
 msgid "Reload spatial data"
 msgstr "Замена пространственных данных"
 
