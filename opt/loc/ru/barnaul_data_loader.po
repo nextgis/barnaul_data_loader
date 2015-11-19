@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: barnaul data loader\n"
-"POT-Creation-Date: 2015-11-19 18:28+0300\n"
-"PO-Revision-Date: 2015-11-19 18:28+0300\n"
+"POT-Creation-Date: 2015-11-19 18:31+0300\n"
+"PO-Revision-Date: 2015-11-19 18:31+0300\n"
 "Last-Translator: Dmitry Baryshnikov <polimax@mail.ru>\n"
 "Language-Team: NextGIS <info@nextgis.ru>\n"
 "Language: ru_RU\n"
@@ -73,7 +73,6 @@ msgid "Check to filter invalid geometry"
 msgstr "Не загружать невалидные геометрии"
 
 #: ../../../src/dlg.cpp:110 ../../../src/dlg.cpp:1002
-#, fuzzy
 msgid "Set output layer name"
 msgstr "Введите имя выходного слоя"
 
@@ -145,14 +144,13 @@ msgid "Failed to delete all features"
 msgstr "Ошибка удаления всех записей"
 
 #: ../../../src/dlg.cpp:764 ../../../src/dlg.cpp:1542
-#, fuzzy, c-format
-msgid "Filed to project feature # %ld"
-msgstr "Ошибка получения класса пространственных объектов %s"
+#, c-format
+msgid "Failed to project feature # %ld"
+msgstr "Ошибка перепроецирования геометрии в записи № %ld"
 
 #: ../../../src/dlg.cpp:1434 ../../../src/dlg.cpp:1484
-#, fuzzy
 msgid "Form output feature dataset"
-msgstr "Создание объединенного слоя"
+msgstr "Создание выходного слоя"
 
 #: ../../../include/dlg.h:54 ../../../include/dlg.h:100
 msgid "Reload spatial data"
