@@ -81,3 +81,46 @@ protected:
     bool m_bUpdateMode;
 };
 
+
+//---------------------------------------------------------------------------------------
+// wxGISBarnaulSimpleDataLoaderDlg
+//---------------------------------------------------------------------------------------
+
+class WXDLLIMPEXP_GIS_BDL wxGISBarnaulSimpleDataLoaderDlg : public wxGISToolGenericDlg
+{
+public:
+    wxGISBarnaulSimpleDataLoaderDlg(wxGxNGWResourceGroupUI *pResourceGroup,
+        wxWindow* parent, wxWindowID id = wxID_ANY,
+        const wxString& title = _("Import spatial data"),
+        const wxPoint& pos = wxDefaultPosition,
+        const wxSize& size = wxDefaultSize,
+        long style = wxCAPTION | wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER | wxCLIP_CHILDREN);
+    wxGISBarnaulSimpleDataLoaderDlg(wxGxNGWLayerUI *pLayer,
+        wxWindow* parent, wxWindowID id = wxID_ANY,
+        const wxString& title = _("Reload spatial data"),
+        const wxPoint& pos = wxDefaultPosition,
+        const wxSize& size = wxDefaultSize,
+        long style = wxCAPTION | wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER | wxCLIP_CHILDREN);
+
+    virtual ~wxGISBarnaulSimpleDataLoaderDlg();
+    //events
+    virtual void OnOk(wxCommandEvent & event);
+    virtual void OnParamChanged(wxGISGPParamEvent& event);
+protected:
+    void SetField(wxGISFeature& feature, int newIndex, const wxGISFeature &row, int index, OGRFieldType eType);
+    void DeleteExistLayer(const wxString& sLayerName);
+    OGRwkbGeometryType GetGeometryType(wxGISFeatureDataset * const pDSet);
+    virtual wxString GetDialogSettingsName() const;
+    void SerializeValues(bool bSave);    
+    void Load();
+    void Reload();
+    wxGISFeatureDataset* PrepareDataset(OGRwkbGeometryType eGeomType, bool bFilterIvalidGeometry, ITrackCancel* const pTrackCancel);
+    bool IsFieldNameForbidden(const wxString& sTestFieldName) const;
+protected:
+    CPLString m_soOutPath;
+    wxGxNGWResourceGroupUI *m_pResourceGroup;
+    wxGxNGWLayerUI *m_pLayer;
+    wxString m_sMiFieldName, m_sCSVFieldName;
+    OGRwkbGeometryType m_dDefaultGeomType;
+    bool m_bUpdateMode;
+};

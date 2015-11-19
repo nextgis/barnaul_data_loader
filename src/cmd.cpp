@@ -195,7 +195,23 @@ void wxGISBarnaulDataloaderCmd::OnClick(void)
             }
             break;
         case 2:
-            wxMessageBox("Not implemented", "Error");
+            {
+                  wxGxObject* pGxObject = pCat->GetRegisterObject(pSel->GetLastSelectedObjectId());
+                  wxGxNGWLayerUI* pLayer = wxDynamicCast(pGxObject, wxGxNGWLayerUI);
+                  if (NULL != pLayer)
+                  {
+                      wxGISBarnaulSimpleDataLoaderDlg dlg(pLayer, dynamic_cast<wxWindow*>(m_pApp));
+                      dlg.ShowModal();
+                      return;
+                  }
+
+                  wxGxNGWResourceGroupUI* pResourceGroup = wxDynamicCast(pGxObject, wxGxNGWResourceGroupUI);
+                  if (NULL != pResourceGroup)
+                  {
+                      wxGISBarnaulSimpleDataLoaderDlg dlg(pResourceGroup, dynamic_cast<wxWindow*>(m_pApp));
+                      dlg.ShowModal();
+                  }
+            }
             break;
 		default:
 			return;
