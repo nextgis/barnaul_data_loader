@@ -432,6 +432,7 @@
   </Frame>
   <PropertyPages>
     <Page class="wxGISCatalogGeneralPropertyPage"/>
+    <Page class="wxGISNetworkPropertyPage"/>
     <Page class="wxGISGDALConfPropertyPage"/>
     <Page class="wxGISMiscPropertyPage"/>
   </PropertyPages>

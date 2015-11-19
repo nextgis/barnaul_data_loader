@@ -742,9 +742,16 @@ void wxGISBarnaulDataLoaderDlg::Reload()
 
         // append
         wxGISFeature feature;
+        OGRSpatialReference *poSRS = new OGRSpatialReference();
+        poSRS->importFromEPSG(3857);
+        wxGISSpatialReference oWMSpatRef(poSRS);
         while ((feature = pGISFeatureDataset->Next()).IsOk())
         {
-            pFeatureDataset->StoreFeature(feature);
+            //reproject ot 3857
+            if (feature.GetGeometry().Project(oWMSpatRef))
+                pFeatureDataset->StoreFeature(feature);
+            else
+                ProgressDlg.PutMessage(wxString::Format(_("Filed to project feature # %ld"), feature.GetFID()), wxNOT_FOUND, enumGISMessageWarning);
         }
 
         ShowMessageDialog(this, ProgressDlg.GetWarnings());
