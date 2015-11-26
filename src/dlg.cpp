@@ -1199,15 +1199,6 @@ bool wxGISBarnaulSimpleDataLoaderDlg::IsFieldNameForbidden(const wxString& sTest
     return false;
 }
 
-#define PARAMNO_SRC_FCLASS 0
-#define PARAMNO_GEOM_TYPE 1
-#define PARAMNO_CHECK_GEOM_VALID 2
-#define PARAMNO_OUTPUT_NAME 3
-
-#define PARAMNOR_SRC_FCLASS 0
-#define PARAMNOR_CHECK_GEOM_VALID 1
-#define PARAMNOR_APPEND_RELOAD 2
-
 wxGISFeatureDataset* wxGISBarnaulSimpleDataLoaderDlg::PrepareDataset(OGRwkbGeometryType eGeomType, bool bFilterIvalidGeometry, ITrackCancel* const pTrackCancel)
 {
     wxString sInputFCPath = m_Parameters[PARAMNO_SRC_FCLASS]->GetValue().GetString();
