@@ -33,6 +33,23 @@
 #include "../art/arrow_join.xpm"
 #include "../art/arrow_circle.xpm"
 
+#define PARAMNOA_SRC_FCLASS 0
+#define PARAMNOA_SRC_FCLASS_SRS 1
+#define PARAMNOA_SRC_CSV 2
+#define PARAMNOA_SRC_FCLASS_JOIN_FIELD 3
+#define PARAMNOA_SRC_CSV_JOIN_FIELD 4
+#define PARAMNOA_GEOM_TYPE 5
+#define PARAMNOA_CHECK_GEOM_VALID 6
+#define PARAMNOA_OUTPUT_NAME 7
+
+#define PARAMNOAR_SRC_FCLASS 0
+#define PARAMNOAR_SRC_FCLASS_SRS 1
+#define PARAMNOAR_SRC_CSV 2
+#define PARAMNOAR_SRC_FCLASS_JOIN_FIELD 3
+#define PARAMNOAR_SRC_CSV_JOIN_FIELD 4
+#define PARAMNOAR_CHECK_GEOM_VALID 5
+#define PARAMNOAR_SELECT_GEOM_TYPE 6
+
 //---------------------------------------------------------------------------
 // wxGISBarnaulDataLoaderDlg
 //---------------------------------------------------------------------------
@@ -58,7 +75,15 @@ wxGISBarnaulDataLoaderDlg::wxGISBarnaulDataLoaderDlg(wxGxNGWResourceGroupUI *pRe
 
     m_Parameters.Add(pParamSrcFClass);
     pParamSrcFClass->Advise(this);
-    
+
+    // select input feature class spatial reference
+    wxGISGPParameter *pParamSrcFClassSRS = new wxGISGPParameter(wxT("src_fclass_srs"), _("Set input feature class spatial reference"), enumGISGPParameterTypeRequired, enumGISGPParamDTSpatRef);
+    pParamSrcFClassSRS->SetDirection(enumGISGPParameterDirectionInput);
+    pParamSrcFClassSRS->AddDependency(wxT("src_fclass"));
+
+    m_Parameters.Add(pParamSrcFClassSRS);
+    pParamSrcFClassSRS->Advise(this);
+
     // select input csv or xls
     wxGISGPParameter *pParamSrcTable = new wxGISGPParameter(wxT("src_table"), _("Set input table"), enumGISGPParameterTypeRequired, enumGISGPParamDTPath);
     pParamSrcTable->SetDirection(enumGISGPParameterDirectionInput);
@@ -140,6 +165,14 @@ wxGISBarnaulDataLoaderDlg::wxGISBarnaulDataLoaderDlg(wxGxNGWLayerUI *pLayer, wxW
     m_Parameters.Add(pParamSrcFClass);
     pParamSrcFClass->Advise(this);
 
+    // select input feature class spatial reference
+    wxGISGPParameter *pParamSrcFClassSRS = new wxGISGPParameter(wxT("src_fclass_srs"), _("Set input feature class spatial reference"), enumGISGPParameterTypeRequired, enumGISGPParamDTSpatRef);
+    pParamSrcFClassSRS->SetDirection(enumGISGPParameterDirectionInput); 
+    pParamSrcFClassSRS->AddDependency(wxT("src_fclass"));
+
+    m_Parameters.Add(pParamSrcFClassSRS);
+    pParamSrcFClassSRS->Advise(this);
+
     // select input csv or xls
     wxGISGPParameter *pParamSrcTable = new wxGISGPParameter(wxT("src_table"), _("Set input table"), enumGISGPParameterTypeRequired, enumGISGPParamDTPath);
     pParamSrcTable->SetDirection(enumGISGPParameterDirectionInput);
@@ -203,15 +236,15 @@ wxGISBarnaulDataLoaderDlg::~wxGISBarnaulDataLoaderDlg()
 void wxGISBarnaulDataLoaderDlg::OnParamChanged(wxGISGPParamEvent& event)
 {
 
-    if(event.GetId() == 0)
+    if (event.GetId() == PARAMNOA_SRC_FCLASS)
     {
-        if (!m_bUpdateMode && !m_Parameters[6]->GetAltered())
+        if (!m_bUpdateMode && !m_Parameters[PARAMNOA_OUTPUT_NAME]->GetAltered())
         {
             wxString sPath = event.GetParamValue();
             wxFileName Name(sPath);
-            m_Parameters[6]->SetHasBeenValidated(false);   
-            m_Parameters[6]->SetValue(wxVariant(Name.GetName(), wxT("dst_name")));
-        }    
+            m_Parameters[PARAMNOA_OUTPUT_NAME]->SetHasBeenValidated(false);
+            m_Parameters[PARAMNOA_OUTPUT_NAME]->SetValue(wxVariant(Name.GetName(), wxT("dst_name")));
+        }
         
         //if(!m_Parameters[4]->GetAltered()) not check altered
         if (!m_bUpdateMode)
@@ -263,10 +296,10 @@ void wxGISBarnaulDataLoaderDlg::OnParamChanged(wxGISGPParamEvent& event)
 		                
                     }    
                     
-                    wxGISGPValueDomain* pDomain = m_Parameters[4]->GetDomain();
+                    wxGISGPValueDomain* pDomain = m_Parameters[PARAMNOA_GEOM_TYPE]->GetDomain();
                     pDomain->Clear();
-                    m_Parameters[4]->SetHasBeenValidated(false);   
-                    //m_Parameters[4]->SetValid(true);                  
+                    m_Parameters[PARAMNOA_GEOM_TYPE]->SetHasBeenValidated(false);
+                    //m_Parameters[PARAMNOA_GEOM_TYPE]->SetValid(true);                  
                        
                     for (std::set<OGRwkbGeometryType>::const_iterator it = geomTypes.begin(); it != geomTypes.end(); ++it)
                     {
@@ -288,39 +321,39 @@ void wxGISBarnaulDataLoaderDlg::OnParamChanged(wxGISGPParamEvent& event)
         }
     }
     			
-	if(event.GetId() ==  0)
+    if (event.GetId() == PARAMNOA_SRC_FCLASS)
 	{
-		//if(!m_Parameters[4]->GetAltered())
+		//if(!m_Parameters[PARAMNOA_GEOM_TYPE]->GetAltered())
         if (!m_bUpdateMode)
 		{
-			wxGISGPValueDomain *pDomain = m_Parameters[4]->GetDomain();
+            wxGISGPValueDomain *pDomain = m_Parameters[PARAMNOA_GEOM_TYPE]->GetDomain();
 			if(NULL != pDomain)
 			{
 				int nPos = pDomain->GetPosByValue((long)m_dDefaultGeomType);
-				m_Parameters[4]->SetSelDomainValue(nPos);
+                m_Parameters[PARAMNOA_GEOM_TYPE]->SetSelDomainValue(nPos);
 			}
 		}
 		
-		//if(!m_Parameters[2]->GetAltered())
+		//if(!m_Parameters[PARAMNOA_SRC_CSV]->GetAltered())
 		{
-			wxGISGPValueDomain *pDomain = m_Parameters[2]->GetDomain();
+            wxGISGPValueDomain *pDomain = m_Parameters[PARAMNOA_SRC_CSV]->GetDomain();
 			if(NULL != pDomain)
 			{
 				int nPos = pDomain->GetPosByName(m_sMiFieldName);
-				m_Parameters[2]->SetSelDomainValue(nPos);
+                m_Parameters[PARAMNOA_SRC_CSV]->SetSelDomainValue(nPos);
 			}
 		}		
 	}		
 	
-	if(event.GetId() ==  1)
+    if (event.GetId() == PARAMNOA_SRC_CSV)
 	{
-		//if(!m_Parameters[3]->GetAltered())
+		//if(!m_Parameters[PARAMNOA_SRC_CSV_JOIN_FIELD]->GetAltered())
 		{
-			wxGISGPValueDomain *pDomain = m_Parameters[3]->GetDomain();
+            wxGISGPValueDomain *pDomain = m_Parameters[PARAMNOA_SRC_CSV_JOIN_FIELD]->GetDomain();
 			if(NULL != pDomain)
 			{
 				int nPos = pDomain->GetPosByName(m_sCSVFieldName);
-				m_Parameters[3]->SetSelDomainValue(nPos);
+                m_Parameters[PARAMNOA_SRC_CSV_JOIN_FIELD]->SetSelDomainValue(nPos);
 			}
 		}
 	}
@@ -359,12 +392,13 @@ bool wxGISBarnaulDataLoaderDlg::IsFieldNameForbidden(const wxString& sTestFieldN
 
 wxGISFeatureDataset* wxGISBarnaulDataLoaderDlg::PrepareDataset(OGRwkbGeometryType eGeomType, bool bFilterIvalidGeometry, ITrackCancel* const pTrackCancel)
 {
-    wxString sInputFCPath = m_Parameters[0]->GetValue().GetString();
-    wxString sInputTabPath = m_Parameters[1]->GetValue().GetString();
-    int nPos = m_Parameters[2]->GetSelDomainValue();
-    wxString sInputFCPathFieldName = m_Parameters[2]->GetDomain()->GetName(nPos);
-    nPos = m_Parameters[3]->GetSelDomainValue();
-    wxString sInputTabPathFieldName = m_Parameters[3]->GetDomain()->GetName(nPos);
+    wxString sInputFCPath = m_Parameters[PARAMNOA_SRC_FCLASS]->GetValue().GetString();
+    wxString sInputTabPath = m_Parameters[PARAMNOA_SRC_CSV]->GetValue().GetString();
+    int nPos = m_Parameters[PARAMNOA_SRC_FCLASS_JOIN_FIELD]->GetSelDomainValue();
+    wxString sInputFCPathFieldName = m_Parameters[PARAMNOA_SRC_FCLASS_JOIN_FIELD]->GetDomain()->GetName(nPos);
+    nPos = m_Parameters[PARAMNOA_SRC_CSV_JOIN_FIELD]->GetSelDomainValue();
+    wxString sInputTabPathFieldName = m_Parameters[PARAMNOA_SRC_CSV_JOIN_FIELD]->GetDomain()->GetName(nPos);
+    wxString sSpaRef = m_Parameters[PARAMNOA_SRC_FCLASS_SRS]->GetValue().GetString();
 
     wxGxCatalogBase* pCat = GetGxCatalog();
     if (pCat)
@@ -402,10 +436,13 @@ wxGISFeatureDataset* wxGISBarnaulDataLoaderDlg::PrepareDataset(OGRwkbGeometryTyp
         }
 
 
-        wxGISSpatialReference SpaRef;// = pFeatureDataset->GetSpatialReference();
-        if (!SpaRef.IsOk())
+        wxGISSpatialReference oSpaRef(sSpaRef);
+        if (!oSpaRef.IsOk())
         {
-            SpaRef = wxGISSpatialReference(wxT("PROJCS[\"unnamed\",GEOGCS[\"Krassovsky, 1942\",DATUM[\"unknown\",SPHEROID[\"krass\",6378245,298.3],TOWGS84[23.92,-141.27,-80.9,-0,0.35,0.82,-0.12]],PRIMEM[\"Greenwich\",0],UNIT[\"degree\",0.0174532925199433]],PROJECTION[\"Hotine_Oblique_Mercator_Azimuth_Center\"],PARAMETER[\"latitude_of_center\",53.3090998192],PARAMETER[\"longitude_of_center\",82.466678914],PARAMETER[\"azimuth\",-1.2302179328],PARAMETER[\"rectified_grid_angle\",0],PARAMETER[\"scale_factor\",0.9999265173],PARAMETER[\"false_easting\",-77391.44014],PARAMETER[\"false_northing\",10469.46443],UNIT[\"Meter\",1]]"));
+            wxString sErr = wxString::Format(_("Failed to get spatial reference for %s"), sInputFCPath.c_str());
+            wxMessageBox(sErr, _("Error"), wxOK | wxICON_ERROR);
+            return NULL;
+            //SpaRef = wxGISSpatialReference(wxT("PROJCS[\"unnamed\",GEOGCS[\"Krassovsky, 1942\",DATUM[\"unknown\",SPHEROID[\"krass\",6378245,298.3],TOWGS84[23.92,-141.27,-80.9,-0,0.35,0.82,-0.12]],PRIMEM[\"Greenwich\",0],UNIT[\"degree\",0.0174532925199433]],PROJECTION[\"Hotine_Oblique_Mercator_Azimuth_Center\"],PARAMETER[\"latitude_of_center\",53.3090998192],PARAMETER[\"longitude_of_center\",82.466678914],PARAMETER[\"azimuth\",-1.2302179328],PARAMETER[\"rectified_grid_angle\",0],PARAMETER[\"scale_factor\",0.9999265173],PARAMETER[\"false_easting\",-77391.44014],PARAMETER[\"false_northing\",10469.46443],UNIT[\"Meter\",1]]"));
         }
 
 
@@ -455,7 +492,7 @@ wxGISFeatureDataset* wxGISBarnaulDataLoaderDlg::PrepareDataset(OGRwkbGeometryTyp
         //OGRwkbGeometryType eGeomType = GetGeometryType(pFeatureDataset); 
 
         OGRCompatibleDataSource* poOutDS = poMEMDrv->CreateOGRCompatibleDataSource("OutDS", NULL);
-        OGRLayer* poOutLayer = poOutDS->CreateLayer("output", SpaRef, eGeomType, NULL);
+        OGRLayer* poOutLayer = poOutDS->CreateLayer("output", oSpaRef, eGeomType, NULL);
 
         // create fields based on two datasets
         wxArrayString saFieldNames;
@@ -650,9 +687,9 @@ wxGISFeatureDataset* wxGISBarnaulDataLoaderDlg::PrepareDataset(OGRwkbGeometryTyp
 
 void wxGISBarnaulDataLoaderDlg::Load()
 {
-    OGRwkbGeometryType eGeomType = (OGRwkbGeometryType)(m_Parameters[4]->GetValue().GetLong() + 3);
-    bool bFilterIvalidGeometry = m_Parameters[5]->GetValue().GetBool();
-    wxString sOutputName = m_Parameters[6]->GetValue().GetString();
+    OGRwkbGeometryType eGeomType = (OGRwkbGeometryType)(m_Parameters[PARAMNOA_GEOM_TYPE]->GetValue().GetLong() + 3);
+    bool bFilterIvalidGeometry = m_Parameters[PARAMNOA_CHECK_GEOM_VALID]->GetValue().GetBool();
+    wxString sOutputName = m_Parameters[PARAMNOA_OUTPUT_NAME]->GetValue().GetString();
     wxGISProgressDlg ProgressDlg(_("Form join feature dataset"), _("Begin operation..."), 100, this);
 
     wxGISFeatureDataset* pGISFeatureDataset = PrepareDataset(eGeomType, bFilterIvalidGeometry, &ProgressDlg);
@@ -701,8 +738,8 @@ void wxGISBarnaulDataLoaderDlg::Reload()
     }
 
     OGRwkbGeometryType eGeomType = pFeatureDataset->GetGeometryType();
-    bool bFilterIvalidGeometry = m_Parameters[4]->GetValue().GetBool();
-    bool bReload = m_Parameters[5]->GetValue().GetInteger() == 2;
+    bool bFilterIvalidGeometry = m_Parameters[PARAMNOAR_CHECK_GEOM_VALID]->GetValue().GetBool();
+    bool bReload = m_Parameters[PARAMNOAR_SELECT_GEOM_TYPE]->GetValue().GetInteger() == 2;
     wxGISProgressDlg ProgressDlg(_("Form join feature dataset"), _("Begin operation..."), 100, this);
     wxGISFeatureDataset* pGISFeatureDataset = PrepareDataset(eGeomType, bFilterIvalidGeometry, &ProgressDlg);
 
@@ -912,23 +949,23 @@ void wxGISBarnaulDataLoaderDlg::SerializeValues(bool bSave)
     if (bSave)
     {
         // save parameters
-        wxGISGPValueDomain* pDomain = m_Parameters[2]->GetDomain();
+        wxGISGPValueDomain* pDomain = m_Parameters[PARAMNOA_SRC_FCLASS_JOIN_FIELD]->GetDomain();
         wxString sInputFCPathFieldName;
         if (NULL != pDomain)
         {
-            int nPos = m_Parameters[2]->GetSelDomainValue();
+            int nPos = m_Parameters[PARAMNOA_SRC_FCLASS_JOIN_FIELD]->GetSelDomainValue();
             sInputFCPathFieldName = pDomain->GetName(nPos);
         }
 
-        pDomain = m_Parameters[3]->GetDomain();
+        pDomain = m_Parameters[PARAMNOA_SRC_CSV_JOIN_FIELD]->GetDomain();
         wxString sInputTabPathFieldName;
         if (NULL != pDomain)
         {
-            int nPos = m_Parameters[3]->GetSelDomainValue();
+            int nPos = m_Parameters[PARAMNOA_SRC_CSV_JOIN_FIELD]->GetSelDomainValue();
             sInputTabPathFieldName = pDomain->GetName(nPos);
         }
 
-        OGRwkbGeometryType eGeomType = (OGRwkbGeometryType)(m_Parameters[4]->GetValue().GetLong());
+        OGRwkbGeometryType eGeomType = (OGRwkbGeometryType)(m_Parameters[PARAMNOA_GEOM_TYPE]->GetValue().GetLong());
         if (eGeomType > 3) // show not multi
             eGeomType = (OGRwkbGeometryType)(eGeomType - 3);
         oConfig.Write(enumGISHKCU, sAppName + wxString(wxT("/")) + GetDialogSettingsName() + wxString(wxT("/data/geom_type")), (int)eGeomType);
@@ -949,13 +986,15 @@ void wxGISBarnaulDataLoaderDlg::SerializeValues(bool bSave)
 //---------------------------------------------------------------------------
 
 #define PARAMNO_SRC_FCLASS 0
-#define PARAMNO_GEOM_TYPE 1
-#define PARAMNO_CHECK_GEOM_VALID 2
-#define PARAMNO_OUTPUT_NAME 3
+#define PARAMNO_SRC_FCLASS_SRS 1
+#define PARAMNO_GEOM_TYPE 2
+#define PARAMNO_CHECK_GEOM_VALID 3
+#define PARAMNO_OUTPUT_NAME 4
 
 #define PARAMNOR_SRC_FCLASS 0
-#define PARAMNOR_CHECK_GEOM_VALID 1
-#define PARAMNOR_APPEND_RELOAD 2
+#define PARAMNOR_SRC_FCLAS_SRS 1
+#define PARAMNOR_CHECK_GEOM_VALID 2
+#define PARAMNOR_APPEND_RELOAD 3
 
 wxGISBarnaulSimpleDataLoaderDlg::wxGISBarnaulSimpleDataLoaderDlg(wxGxNGWResourceGroupUI *pResourceGroup, wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style) : wxGISToolGenericDlg(parent, id, title, pos, size, style)
 {
@@ -978,6 +1017,14 @@ wxGISBarnaulSimpleDataLoaderDlg::wxGISBarnaulSimpleDataLoaderDlg(wxGxNGWResource
 
     m_Parameters.Add(pParamSrcFClass);
     pParamSrcFClass->Advise(this);
+
+    // select input feature class spatial reference
+    wxGISGPParameter *pParamSrcFClassSRS = new wxGISGPParameter(wxT("src_fclass_srs"), _("Set input feature class spatial reference"), enumGISGPParameterTypeRequired, enumGISGPParamDTSpatRef);
+    pParamSrcFClassSRS->SetDirection(enumGISGPParameterDirectionInput); 
+    pParamSrcFClassSRS->AddDependency(wxT("src_fclass"));
+
+    m_Parameters.Add(pParamSrcFClassSRS);
+    pParamSrcFClassSRS->Advise(this);
     
     // select geometry type
     wxGISGPParameter *pParamOutGeomType = new wxGISGPParameter(wxT("src_fclass_gt"), _("Select output geometry type"), enumGISGPParameterTypeRequired, enumGISGPParamDTIntegerChoice);
@@ -1031,6 +1078,14 @@ wxGISBarnaulSimpleDataLoaderDlg::wxGISBarnaulSimpleDataLoaderDlg(wxGxNGWLayerUI 
 
     m_Parameters.Add(pParamSrcFClass);
     pParamSrcFClass->Advise(this);
+
+    // select input feature class spatial reference
+    wxGISGPParameter *pParamSrcFClassSRS = new wxGISGPParameter(wxT("src_fclass_srs"), _("Set input feature class spatial reference"), enumGISGPParameterTypeRequired, enumGISGPParamDTSpatRef);
+    pParamSrcFClassSRS->SetDirection(enumGISGPParameterDirectionInput);
+    pParamSrcFClassSRS->AddDependency(wxT("src_fclass"));
+
+    m_Parameters.Add(pParamSrcFClassSRS);
+    pParamSrcFClassSRS->Advise(this);
     
     // check filter out invalid geometry
     wxGISGPParameter *pParamFilter = new wxGISGPParameter(wxT("src_fclass_invalid"), _("Check to filter invalid geometry"), enumGISGPParameterTypeRequired, enumGISGPParamDTBool);
@@ -1067,7 +1122,7 @@ wxGISBarnaulSimpleDataLoaderDlg::~wxGISBarnaulSimpleDataLoaderDlg()
 void wxGISBarnaulSimpleDataLoaderDlg::OnParamChanged(wxGISGPParamEvent& event)
 {
 
-    if (event.GetId() == 0)
+    if (event.GetId() == PARAMNO_SRC_FCLASS)
     {
         if (!m_bUpdateMode && !m_Parameters[PARAMNO_OUTPUT_NAME]->GetAltered())
         {
@@ -1152,7 +1207,7 @@ void wxGISBarnaulSimpleDataLoaderDlg::OnParamChanged(wxGISGPParamEvent& event)
         }
     }
 
-    if (event.GetId() == 0)
+    if (event.GetId() == PARAMNO_SRC_FCLASS)
     {
         //if(!m_Parameters[4]->GetAltered())
         if (!m_bUpdateMode)
@@ -1202,6 +1257,7 @@ bool wxGISBarnaulSimpleDataLoaderDlg::IsFieldNameForbidden(const wxString& sTest
 wxGISFeatureDataset* wxGISBarnaulSimpleDataLoaderDlg::PrepareDataset(OGRwkbGeometryType eGeomType, bool bFilterIvalidGeometry, ITrackCancel* const pTrackCancel)
 {
     wxString sInputFCPath = m_Parameters[PARAMNO_SRC_FCLASS]->GetValue().GetString();
+    wxString sSpaRef = m_Parameters[PARAMNO_SRC_FCLASS_SRS]->GetValue().GetString();
     wxGxCatalogBase* pCat = GetGxCatalog();
     if (pCat)
     {
@@ -1237,11 +1293,13 @@ wxGISFeatureDataset* wxGISBarnaulSimpleDataLoaderDlg::PrepareDataset(OGRwkbGeome
             pFeatureDataset->Cache(pTrackCancel);
         }
 
-
-        wxGISSpatialReference SpaRef;// = pFeatureDataset->GetSpatialReference();
-        if (!SpaRef.IsOk())
+        wxGISSpatialReference oSpaRef(sSpaRef);
+        if (!oSpaRef.IsOk())
         {
-            SpaRef = wxGISSpatialReference(wxT("PROJCS[\"unnamed\",GEOGCS[\"Krassovsky, 1942\",DATUM[\"unknown\",SPHEROID[\"krass\",6378245,298.3],TOWGS84[23.92,-141.27,-80.9,-0,0.35,0.82,-0.12]],PRIMEM[\"Greenwich\",0],UNIT[\"degree\",0.0174532925199433]],PROJECTION[\"Hotine_Oblique_Mercator_Azimuth_Center\"],PARAMETER[\"latitude_of_center\",53.3090998192],PARAMETER[\"longitude_of_center\",82.466678914],PARAMETER[\"azimuth\",-1.2302179328],PARAMETER[\"rectified_grid_angle\",0],PARAMETER[\"scale_factor\",0.9999265173],PARAMETER[\"false_easting\",-77391.44014],PARAMETER[\"false_northing\",10469.46443],UNIT[\"Meter\",1]]"));
+            wxString sErr = wxString::Format(_("Failed to get spatial reference for %s"), sInputFCPath.c_str());
+            wxMessageBox(sErr, _("Error"), wxOK | wxICON_ERROR);
+            return NULL;
+            //SpaRef = wxGISSpatialReference(wxT("PROJCS[\"unnamed\",GEOGCS[\"Krassovsky, 1942\",DATUM[\"unknown\",SPHEROID[\"krass\",6378245,298.3],TOWGS84[23.92,-141.27,-80.9,-0,0.35,0.82,-0.12]],PRIMEM[\"Greenwich\",0],UNIT[\"degree\",0.0174532925199433]],PROJECTION[\"Hotine_Oblique_Mercator_Azimuth_Center\"],PARAMETER[\"latitude_of_center\",53.3090998192],PARAMETER[\"longitude_of_center\",82.466678914],PARAMETER[\"azimuth\",-1.2302179328],PARAMETER[\"rectified_grid_angle\",0],PARAMETER[\"scale_factor\",0.9999265173],PARAMETER[\"false_easting\",-77391.44014],PARAMETER[\"false_northing\",10469.46443],UNIT[\"Meter\",1]]"));
         }
 
         // create temp memory dataset ready to upload to the NGW
@@ -1256,7 +1314,7 @@ wxGISFeatureDataset* wxGISBarnaulSimpleDataLoaderDlg::PrepareDataset(OGRwkbGeome
         //OGRwkbGeometryType eGeomType = GetGeometryType(pFeatureDataset); 
 
         OGRCompatibleDataSource* poOutDS = poMEMDrv->CreateOGRCompatibleDataSource("OutDS", NULL);
-        OGRLayer* poOutLayer = poOutDS->CreateLayer("output", SpaRef, eGeomType, NULL);
+        OGRLayer* poOutLayer = poOutDS->CreateLayer("output", oSpaRef, eGeomType, NULL);
 
         // create fields         
         wxArrayString saFieldNames;

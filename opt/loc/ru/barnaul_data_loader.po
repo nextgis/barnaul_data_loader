@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: barnaul data loader\n"
-"POT-Creation-Date: 2015-11-19 18:31+0300\n"
-"PO-Revision-Date: 2015-11-19 18:31+0300\n"
+"POT-Creation-Date: 2016-02-17 15:57+0300\n"
+"PO-Revision-Date: 2016-02-17 16:00+0300\n"
 "Last-Translator: Dmitry Baryshnikov <polimax@mail.ru>\n"
 "Language-Team: NextGIS <info@nextgis.ru>\n"
 "Language: ru_RU\n"
@@ -46,109 +46,120 @@ msgstr "Обновление пространственных данных в Н
 msgid "Simple load/update spatial data in NGW"
 msgstr "Простой ввод/замена пространственных данных в НГВ"
 
-#: ../../../src/dlg.cpp:51 ../../../src/dlg.cpp:132 ../../../src/dlg.cpp:971
-#: ../../../src/dlg.cpp:1024
+#: ../../../src/dlg.cpp:68 ../../../src/dlg.cpp:157 ../../../src/dlg.cpp:1010
+#: ../../../src/dlg.cpp:1071
 msgid "Set input feature class"
 msgstr "Выберите класс пространственных объектов"
 
-#: ../../../src/dlg.cpp:63 ../../../src/dlg.cpp:144
+#: ../../../src/dlg.cpp:80 ../../../src/dlg.cpp:169 ../../../src/dlg.cpp:1022
+#: ../../../src/dlg.cpp:1083
+msgid "Set input feature class spatial reference"
+msgstr "Выберите систему координат класса пространственных объектов"
+
+#: ../../../src/dlg.cpp:88 ../../../src/dlg.cpp:177
 msgid "Set input table"
 msgstr "Выберите таблицу"
 
-#: ../../../src/dlg.cpp:75 ../../../src/dlg.cpp:156
+#: ../../../src/dlg.cpp:100 ../../../src/dlg.cpp:189
 msgid "Set input feature class field to join"
 msgstr "Выберите поле класса пространственных объектов для связи"
 
-#: ../../../src/dlg.cpp:83 ../../../src/dlg.cpp:164
+#: ../../../src/dlg.cpp:108 ../../../src/dlg.cpp:197
 msgid "Set input table field to join"
 msgstr "Выберите поле таблицы для связи"
 
-#: ../../../src/dlg.cpp:91 ../../../src/dlg.cpp:983
+#: ../../../src/dlg.cpp:116 ../../../src/dlg.cpp:1030
 msgid "Select output geometry type"
 msgstr "Укажите тип геометрии"
 
-#: ../../../src/dlg.cpp:102 ../../../src/dlg.cpp:172 ../../../src/dlg.cpp:994
-#: ../../../src/dlg.cpp:1036
+#: ../../../src/dlg.cpp:127 ../../../src/dlg.cpp:205 ../../../src/dlg.cpp:1041
+#: ../../../src/dlg.cpp:1091
 msgid "Check to filter invalid geometry"
 msgstr "Не загружать невалидные геометрии"
 
-#: ../../../src/dlg.cpp:110 ../../../src/dlg.cpp:1002
+#: ../../../src/dlg.cpp:135 ../../../src/dlg.cpp:1049
 msgid "Set output layer name"
 msgstr "Введите имя выходного слоя"
 
-#: ../../../src/dlg.cpp:180 ../../../src/dlg.cpp:1044
+#: ../../../src/dlg.cpp:213 ../../../src/dlg.cpp:1099
 msgid "Select append or reload"
 msgstr "Выбор дописать или заменить"
 
-#: ../../../src/dlg.cpp:184 ../../../src/dlg.cpp:1048
+#: ../../../src/dlg.cpp:217 ../../../src/dlg.cpp:1103
 msgid "Reload"
 msgstr "Заменить"
 
-#: ../../../src/dlg.cpp:185 ../../../src/dlg.cpp:1049
+#: ../../../src/dlg.cpp:218 ../../../src/dlg.cpp:1104
 msgid "Append"
 msgstr "Дописать"
 
-#: ../../../src/dlg.cpp:375 ../../../src/dlg.cpp:383 ../../../src/dlg.cpp:1220
-#: ../../../src/dlg.cpp:1228
+#: ../../../src/dlg.cpp:409 ../../../src/dlg.cpp:417 ../../../src/dlg.cpp:1267
+#: ../../../src/dlg.cpp:1275
 #, c-format
 msgid "Failed to get feature dataset %s"
 msgstr "Ошибка получения класса пространственных объектов %s"
 
-#: ../../../src/dlg.cpp:376 ../../../src/dlg.cpp:384 ../../../src/dlg.cpp:416
-#: ../../../src/dlg.cpp:424 ../../../src/dlg.cpp:699 ../../../src/dlg.cpp:742
-#: ../../../src/dlg.cpp:1221 ../../../src/dlg.cpp:1229
-#: ../../../src/dlg.cpp:1477 ../../../src/dlg.cpp:1520
+#: ../../../src/dlg.cpp:410 ../../../src/dlg.cpp:418 ../../../src/dlg.cpp:443
+#: ../../../src/dlg.cpp:453 ../../../src/dlg.cpp:461 ../../../src/dlg.cpp:736
+#: ../../../src/dlg.cpp:779 ../../../src/dlg.cpp:1268
+#: ../../../src/dlg.cpp:1276 ../../../src/dlg.cpp:1300
+#: ../../../src/dlg.cpp:1526 ../../../src/dlg.cpp:1569
 msgid "Error"
 msgstr "Ошибка"
 
-#: ../../../src/dlg.cpp:415 ../../../src/dlg.cpp:423
+#: ../../../src/dlg.cpp:442 ../../../src/dlg.cpp:1299
+#, c-format
+msgid "Failed to get spatial reference for %s"
+msgstr "Не удалось получить систему координат для %s"
+
+#: ../../../src/dlg.cpp:452 ../../../src/dlg.cpp:460
 #, c-format
 msgid "Failed to get table %s"
 msgstr "Не удалось получить таблицу '%s'"
 
-#: ../../../src/dlg.cpp:480 ../../../src/dlg.cpp:493 ../../../src/dlg.cpp:1290
-#: ../../../src/dlg.cpp:1303
+#: ../../../src/dlg.cpp:517 ../../../src/dlg.cpp:530 ../../../src/dlg.cpp:1339
+#: ../../../src/dlg.cpp:1352
 #, c-format
 msgid "The field %s renamed to %s"
 msgstr "Поле %s переименовано в %s"
 
-#: ../../../src/dlg.cpp:533 ../../../src/dlg.cpp:1324
+#: ../../../src/dlg.cpp:570 ../../../src/dlg.cpp:1373
 #, c-format
 msgid "Force geometry field to %s"
 msgstr "Преобразование типа геометрии в %s"
 
-#: ../../../src/dlg.cpp:656 ../../../src/dlg.cpp:706
+#: ../../../src/dlg.cpp:693 ../../../src/dlg.cpp:743
 msgid "Form join feature dataset"
 msgstr "Создание объединенного слоя"
 
-#: ../../../src/dlg.cpp:656 ../../../src/dlg.cpp:706 ../../../src/dlg.cpp:1434
-#: ../../../src/dlg.cpp:1484
+#: ../../../src/dlg.cpp:693 ../../../src/dlg.cpp:743 ../../../src/dlg.cpp:1483
+#: ../../../src/dlg.cpp:1533
 msgid "Begin operation..."
 msgstr "Начать операцию..."
 
-#: ../../../src/dlg.cpp:672 ../../../src/dlg.cpp:1450
+#: ../../../src/dlg.cpp:709 ../../../src/dlg.cpp:1499
 msgid "CreateVectorLayer failed"
 msgstr "Ошибка создания выходного слоя"
 
-#: ../../../src/dlg.cpp:698 ../../../src/dlg.cpp:1476
+#: ../../../src/dlg.cpp:735 ../../../src/dlg.cpp:1525
 msgid "Failed to get dataset"
 msgstr "Ошибка получения класса пространственных объектов"
 
-#: ../../../src/dlg.cpp:728 ../../../src/dlg.cpp:1506
+#: ../../../src/dlg.cpp:765 ../../../src/dlg.cpp:1555
 #, c-format
 msgid "Remove non exist field %s"
 msgstr "Удаление отсутсвующего поля %s"
 
-#: ../../../src/dlg.cpp:741 ../../../src/dlg.cpp:1519
+#: ../../../src/dlg.cpp:778 ../../../src/dlg.cpp:1568
 msgid "Failed to delete all features"
 msgstr "Ошибка удаления всех записей"
 
-#: ../../../src/dlg.cpp:764 ../../../src/dlg.cpp:1542
+#: ../../../src/dlg.cpp:801 ../../../src/dlg.cpp:1591
 #, c-format
 msgid "Failed to project feature # %ld"
 msgstr "Ошибка перепроецирования геометрии в записи № %ld"
 
-#: ../../../src/dlg.cpp:1434 ../../../src/dlg.cpp:1484
+#: ../../../src/dlg.cpp:1483 ../../../src/dlg.cpp:1533
 msgid "Form output feature dataset"
 msgstr "Создание выходного слоя"
 
